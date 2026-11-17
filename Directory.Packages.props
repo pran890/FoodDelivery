@@ -1,0 +1,20 @@
+<Project>
+  <!--
+    Central Package Management (CPM): every NuGet version is declared once, here.
+    Projects reference packages with <PackageReference Include="X" /> and NO Version.
+    A Version attribute in a .csproj is an error (NU1008).
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!--
+      Transitive pinning: if a package listed below also arrives indirectly
+      (a dependency of a dependency), the version here wins. Useful for forcing
+      a patched version of a vulnerable transitive package.
+    -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Packages are added here as each learning step introduces one. -->
+  </ItemGroup>
+</Project>

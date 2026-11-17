@@ -1,0 +1,41 @@
+<Project>
+  <!--
+    MSBuild imports this file automatically into every project below this folder
+    (it walks up from the .csproj until it finds one). Anything set here is the
+    default for all projects; a .csproj can still override a property.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Analyzers: the "Recommended" set of CA rules, at the latest SDK's rule level. -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <!-- Run .editorconfig style rules (IDExxxx) during build, not only in the editor. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Every warning breaks the build, so warnings never pile up unnoticed. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!--
+      NuGet audit: low/moderate vulnerability advisories (NU1901/NU1902) stay warnings
+      so a newly published advisory can't block a local build; high/critical
+      (NU1903/NU1904) still fail it.
+    -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902</WarningsNotAsErrors>
+    <NuGetAuditMode>all</NuGetAuditMode>
+
+    <!--
+      IDE0005 (unused usings) only runs in a command-line build when an XML doc file
+      is generated. We generate it but silence CS1591 (missing XML comments),
+      because we don't want to force doc comments on every public member.
+    -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <Deterministic>true</Deterministic>
+    <!-- CI=true is set by GitHub Actions; this normalises paths in PDBs for reproducible builds. -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

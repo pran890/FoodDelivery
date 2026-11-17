@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Integration event records shared between services (added from step 26).
+    Rule: no dependencies and no logic, only message shapes.
+    TargetFramework, Nullable etc. come from Directory.Build.props.
+  -->
+
+</Project>
