@@ -1,0 +1,23 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+
+  <!--
+    The AppHost is a normal console app built with the Aspire AppHost SDK.
+    The SDK brings Aspire.Hosting.AppHost, the dashboard and DCP (the process/container orchestrator).
+    TargetFramework, Nullable etc. come from Directory.Build.props.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>482b94e6-a0be-4cf5-8366-58bfc878fcbc</UserSecretsId>
+  </PropertyGroup>
+
+  <!--
+    Each referenced project becomes a generated type in the Projects namespace
+    (FoodDelivery.Sandbox.Kitchen -> Projects.FoodDelivery_Sandbox_Kitchen) that AppHost.cs uses.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sandbox\FoodDelivery.Sandbox.Kitchen\FoodDelivery.Sandbox.Kitchen.csproj" />
+    <ProjectReference Include="..\..\Sandbox\FoodDelivery.Sandbox.Waiter\FoodDelivery.Sandbox.Waiter.csproj" />
+  </ItemGroup>
+
+</Project>

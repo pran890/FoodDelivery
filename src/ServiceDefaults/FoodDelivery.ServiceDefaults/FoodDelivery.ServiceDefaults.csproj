@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Tells the Aspire tooling this is the shared defaults project, not a runnable service. -->
+    <IsAspireSharedProject>true</IsAspireSharedProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+  </ItemGroup>
+
+</Project>

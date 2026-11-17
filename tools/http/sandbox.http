@@ -1,0 +1,16 @@
+# Sandbox requests for steps 02-05. Start the AppHost first:
+#   dotnet run --project src/AppHost/FoodDelivery.AppHost
+# Run these from VS Code with the "REST Client" extension (humao.rest-client),
+# or copy the URLs into curl.exe.
+
+@waiter = https://localhost:7240
+@kitchen = https://localhost:7148
+
+### Waiter calls Kitchen by NAME (https+http://kitchen), never by port
+GET {{waiter}}/order
+
+### The configuration service discovery reads (injected by the AppHost)
+GET {{waiter}}/debug/discovery
+
+### Kitchen directly, through the DCP proxy port from its launchSettings.json
+GET {{kitchen}}/dish-of-the-day

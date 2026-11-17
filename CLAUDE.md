@@ -56,6 +56,7 @@ Each service owns its own database. No service reads another service's database.
 
 - **Clean Architecture** means Api / Application / Domain / Infrastructure projects. It's used where the domain logic is rich: sagas, money and assignment.
 - **Vertical slices** means one project organised by feature folder (`Features/<Feature>/<UseCase>`). It's used where the logic is mostly CRUD or infrastructure.
+- **Sandbox:** `src/Sandbox/` (Kitchen + Waiter) holds throwaway APIs used for learning in steps 02–05 (discovery, tracing, resilience). They are not part of the product; delete them once the real services exist.
 - **Shared code** is allowed only in `src/BuildingBlocks/FoodDelivery.Contracts` (integration event records, no logic), `src/BuildingBlocks/FoodDelivery.Web` (ProblemDetails, current user) and `src/ServiceDefaults`. Services never reference each other.
 
 ## Tech stack (all free)

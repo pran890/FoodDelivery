@@ -1,6 +1,16 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/AppHost/">
+    <Project Path="src/AppHost/FoodDelivery.AppHost/FoodDelivery.AppHost.csproj" />
+  </Folder>
   <Folder Name="/src/BuildingBlocks/">
     <Project Path="src/BuildingBlocks/FoodDelivery.Contracts/FoodDelivery.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Sandbox/">
+    <Project Path="src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj" />
+    <Project Path="src/Sandbox/FoodDelivery.Sandbox.Waiter/FoodDelivery.Sandbox.Waiter.csproj" />
+  </Folder>
+  <Folder Name="/src/ServiceDefaults/">
+    <Project Path="src/ServiceDefaults/FoodDelivery.ServiceDefaults/FoodDelivery.ServiceDefaults.csproj" />
   </Folder>
 </Solution>

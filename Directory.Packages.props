@@ -16,5 +16,8 @@
 
   <ItemGroup>
     <!-- Packages are added here as each learning step introduces one. -->
+
+    <!-- Step 02: Aspire service discovery (version matched to the Aspire 13.6 templates) -->
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0" />
   </ItemGroup>
 </Project>

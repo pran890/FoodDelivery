@@ -9,12 +9,12 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 02 — Aspire basics (🔄 In progress)
+## Current step: 03 — Infrastructure containers (🔄 In progress)
 - [ ] Brief
-- [ ] Build: AppHost, ServiceDefaults, sandbox APIs, service discovery
+- [ ] Build: Postgres + PostGIS, Redis, Mailpit in the AppHost (persistent, volumes, memory caps); Kitchen reads injected connection strings
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-02-aspire-basics`
+- [ ] Commit + tag `step-03-infrastructure-containers`
 
 ## Open questions / waiting on
 - None.
@@ -27,8 +27,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | # | Step | Schema review | Status |
 |---|---|---|---|
 | 01 | Repo and build hygiene | | ✅ |
-| 02 | Aspire basics | | 🔄 In progress |
-| 03 | Infrastructure containers | | ⬜ |
+| 02 | Aspire basics | | ✅ |
+| 03 | Infrastructure containers | | 🔄 In progress |
 | 04 | OpenTelemetry | | ⬜ |
 | 05 | Health and resilience | | ⬜ |
 | 06 | Testing foundation | | ⬜ |
@@ -141,9 +141,10 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**1 / 59 done** · Current: Step 02 (in progress)
+**2 / 59 done** · Current: Step 03 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
 |---|---|---|---|
 | 01 | Repo and build hygiene | `step-01-repo-and-build-hygiene` | 2026-11-17 |
+| 02 | Aspire basics | `step-02-aspire-basics` | 2026-11-17 |
