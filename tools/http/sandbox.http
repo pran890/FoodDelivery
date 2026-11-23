@@ -14,3 +14,12 @@ GET {{waiter}}/debug/discovery
 
 ### Kitchen directly, through the DCP proxy port from its launchSettings.json
 GET {{kitchen}}/dish-of-the-day
+
+### Step 03: Postgres metadata via the injected connection string (no tables touched)
+GET {{kitchen}}/infra/postgres
+
+### Step 03: Redis counter + memory; the count survives AppHost restarts (volume)
+GET {{kitchen}}/infra/redis
+
+### Step 03: the connection strings the AppHost injected (passwords masked)
+GET {{kitchen}}/debug/connection-strings

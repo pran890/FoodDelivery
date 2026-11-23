@@ -11,6 +11,13 @@
     <UserSecretsId>482b94e6-a0be-4cf5-8366-58bfc878fcbc</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Hosting integrations: AddPostgres, AddRedis, AddMailPit. Versions in Directory.Packages.props. -->
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.MailPit" />
+  </ItemGroup>
+
   <!--
     Each referenced project becomes a generated type in the Projects namespace
     (FoodDelivery.Sandbox.Kitchen -> Projects.FoodDelivery_Sandbox_Kitchen) that AppHost.cs uses.

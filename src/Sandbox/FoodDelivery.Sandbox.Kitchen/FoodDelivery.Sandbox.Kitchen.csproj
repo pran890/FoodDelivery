@@ -5,4 +5,10 @@
     <ProjectReference Include="..\..\ServiceDefaults\FoodDelivery.ServiceDefaults\FoodDelivery.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <!-- Step 03: plain clients, so the connection-string mechanism stays visible. -->
+  <ItemGroup>
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="StackExchange.Redis" />
+  </ItemGroup>
+
 </Project>

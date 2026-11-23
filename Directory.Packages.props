@@ -19,5 +19,14 @@
 
     <!-- Step 02: Aspire service discovery (version matched to the Aspire 13.6 templates) -->
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0" />
+
+    <!-- Step 03: AppHost hosting integrations (declare containers in C#) -->
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.5" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.MailPit" Version="13.6.1" />
+
+    <!-- Step 03: plain client libraries (the sandbox reads connection strings by hand) -->
+    <PackageVersion Include="Npgsql" Version="10.0.3" />
+    <PackageVersion Include="StackExchange.Redis" Version="3.4.35" />
   </ItemGroup>
 </Project>

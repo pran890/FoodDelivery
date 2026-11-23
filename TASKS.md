@@ -9,15 +9,15 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 03 — Infrastructure containers (🔄 In progress)
+## Current step: 04 — OpenTelemetry (🔄 In progress)
 - [ ] Brief
-- [ ] Build: Postgres + PostGIS, Redis, Mailpit in the AppHost (persistent, volumes, memory caps); Kitchen reads injected connection strings
+- [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-03-infrastructure-containers`
+- [ ] Commit + tag `step-04-opentelemetry`
 
 ## Open questions / waiting on
-- None.
+- Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
 
 ---
 
@@ -28,8 +28,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 |---|---|---|---|
 | 01 | Repo and build hygiene | | ✅ |
 | 02 | Aspire basics | | ✅ |
-| 03 | Infrastructure containers | | 🔄 In progress |
-| 04 | OpenTelemetry | | ⬜ |
+| 03 | Infrastructure containers | | ✅ |
+| 04 | OpenTelemetry | | 🔄 In progress |
 | 05 | Health and resilience | | ⬜ |
 | 06 | Testing foundation | | ⬜ |
 | 07 | CI | | ⬜ |
@@ -141,10 +141,11 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**2 / 59 done** · Current: Step 03 (in progress)
+**3 / 59 done** · Current: Step 04 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
 |---|---|---|---|
 | 01 | Repo and build hygiene | `step-01-repo-and-build-hygiene` | 2026-11-17 |
 | 02 | Aspire basics | `step-02-aspire-basics` | 2026-11-17 |
+| 03 | Infrastructure containers | `step-03-infrastructure-containers` | 2026-11-23 |

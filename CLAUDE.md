@@ -110,7 +110,11 @@ Each service owns its own database. No service reads another service's database.
 
 ## 12 GB RAM rules
 - **WSL2:** capped at **6 GB** in `%USERPROFILE%\.wslconfig`.
-- **Containers:** each one gets a memory cap. Postgres is capped at 512 MB and Redis at 128 MB. RabbitMQ only from step 26.
+- **Containers:** each one gets a memory cap. Postgres is capped at 512 MB, Redis at 128 MB and Mailpit at 64 MB. RabbitMQ only from step 26.
+  - **Always set `--memory-swap` equal to `--memory`.** With `--memory` alone, Docker allows the same amount again as swap.
+  - **Aspire does not re-apply changed runtime args to an existing persistent container.** After changing them, run `tools\infra.ps1 remove`; volumes are kept.
+  - **Persistent containers keep running after the AppHost stops.** Run `tools\infra.ps1 stop` to free RAM.
+  - **Never change `Parameters:*-password` in the AppHost user secrets once a volume exists.** Postgres keeps the password it was first initialised with.
 - **Services:** run at most 5–6 .NET services at once; the AppHost starts only what the current step needs.
 - **Frontends:** at most two Vite dev servers at once.
 - **Tests:** don't run Testcontainers suites while the full AppHost is running.
