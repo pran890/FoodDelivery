@@ -28,5 +28,12 @@
     <!-- Step 03: plain client libraries (the sandbox reads connection strings by hand) -->
     <PackageVersion Include="Npgsql" Version="10.0.3" />
     <PackageVersion Include="StackExchange.Redis" Version="3.4.35" />
+
+    <!-- Step 04: OpenTelemetry SDK, OTLP exporter and auto-instrumentation (keep all on one version) -->
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
   </ItemGroup>
 </Project>

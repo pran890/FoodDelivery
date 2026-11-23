@@ -23,3 +23,12 @@ GET {{kitchen}}/infra/redis
 
 ### Step 03: the connection strings the AppHost injected (passwords masked)
 GET {{kitchen}}/debug/connection-strings
+
+### Step 04: one trace across both services. waiterTraceId == fromKitchen.trace.traceId
+GET {{waiter}}/order
+
+### Step 04: an error that crosses services (kitchen 500 -> waiter 500); red spans in the dashboard
+GET {{waiter}}/order?burn=true
+
+### Step 04: kitchen called directly: no traceparent received, so it starts a NEW trace
+GET {{kitchen}}/dish-of-the-day

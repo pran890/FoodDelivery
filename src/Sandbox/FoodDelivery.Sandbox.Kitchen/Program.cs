@@ -1,4 +1,5 @@
 // SANDBOX: a throwaway API for learning steps 02-05. Deleted once real services exist.
+using System.Diagnostics;
 using Npgsql;
 using StackExchange.Redis;
 
@@ -24,14 +25,56 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     return ConnectionMultiplexer.Connect(options);
 });
 
+// Step 04: business metrics (a Meter owned by DI via IMeterFactory).
+builder.Services.AddSingleton<KitchenMetrics>();
+
 var app = builder.Build();
 
 // Reports which process and address served the request, so you can see
 // where service discovery actually sent the waiter's call.
-app.MapGet("/dish-of-the-day", (HttpContext http) => new DishOfTheDay(
-    Dish: "Dal Baati Churma",
-    CookedBy: $"kitchen (pid {Environment.ProcessId})",
-    ListeningOn: $"{http.Request.Scheme}://{http.Request.Host}"));
+// Step 04: the cooking is wrapped in a custom span, counted in metrics and logged.
+// ?burn=true makes it fail, so you can see an error span in the trace.
+app.MapGet("/dish-of-the-day", async (HttpContext http, KitchenMetrics metrics, ILogger<Program> logger,
+    CancellationToken ct, bool burn = false) =>
+{
+    const string dish = "Dal Baati Churma";
+    var started = Stopwatch.GetTimestamp();
+    string? cookSpanId;
+
+    // A child span of the ASP.NET Core server span (Activity.Current is the implicit parent).
+    using (var activity = KitchenTelemetry.ActivitySource.StartActivity("cook dish"))
+    {
+        // null when no listener subscribed to this ActivitySource: the span was never created.
+        cookSpanId = activity?.SpanId.ToString();
+        activity?.SetTag("kitchen.dish.name", dish);
+
+        // Pretend to cook: 50-300 ms, so the span has a visible width in the dashboard.
+        await Task.Delay(TimeSpan.FromMilliseconds(Random.Shared.Next(50, 300)), ct);
+        var elapsed = Stopwatch.GetElapsedTime(started);
+        metrics.DishCooked(dish, burnt: burn, elapsed);
+
+        if (burn)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Dish burnt");
+            logger.DishBurnt(dish, (long)elapsed.TotalMilliseconds);
+            return Results.Problem("The dish got burnt.", statusCode: StatusCodes.Status500InternalServerError);
+        }
+
+        // Logged while "cook dish" is Activity.Current, so this record carries that span's id.
+        logger.DishCooked(dish, (long)elapsed.TotalMilliseconds);
+    }
+
+    return Results.Ok(new DishOfTheDay(
+        Dish: dish,
+        CookedBy: $"kitchen (pid {Environment.ProcessId})",
+        ListeningOn: $"{http.Request.Scheme}://{http.Request.Host}",
+        Trace: new TraceInfo(
+            // Learning aid: the W3C header the waiter's HttpClient sent, the trace we joined,
+            // and whether our custom span existed.
+            ReceivedTraceparent: http.Request.Headers.TraceParent.FirstOrDefault(),
+            TraceId: Activity.Current?.TraceId.ToString(),
+            CookSpanId: cookSpanId)));
+});
 
 // Proves the Postgres connection string works. Reads only server metadata: no tables are created.
 app.MapGet("/infra/postgres", async (NpgsqlDataSource db, CancellationToken ct) =>
@@ -72,7 +115,9 @@ app.MapGet("/debug/connection-strings", (IConfiguration config) =>
 
 app.Run();
 
-internal sealed record DishOfTheDay(string Dish, string CookedBy, string ListeningOn);
+internal sealed record DishOfTheDay(string Dish, string CookedBy, string ListeningOn, TraceInfo Trace);
+
+internal sealed record TraceInfo(string? ReceivedTraceparent, string? TraceId, string? CookSpanId);
 
 internal sealed record PostgresInfo(string Database, string Version, string? PostgisAvailable, string SharedBuffers, string MaxConnections);
 
