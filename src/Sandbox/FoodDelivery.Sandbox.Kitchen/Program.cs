@@ -28,18 +28,37 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
 // Step 04: business metrics (a Meter owned by DI via IMeterFactory).
 builder.Services.AddSingleton<KitchenMetrics>();
 
+// Step 05: readiness checks for this service's dependencies (no "live" tag, so /alive ignores them).
+// The timeout stops a hanging dependency from hanging the probe; a timeout counts as Unhealthy.
+builder.Services.AddHealthChecks()
+    .AddCheck<PostgresHealthCheck>("postgres", timeout: TimeSpan.FromSeconds(3))
+    .AddCheck<RedisHealthCheck>("redis", timeout: TimeSpan.FromSeconds(3));
+
+// Step 05: fault injection for the resilience experiments.
+builder.Services.AddSingleton<Chaos>();
+
 var app = builder.Build();
+app.MapDefaultEndpoints();
 
 // Reports which process and address served the request, so you can see
 // where service discovery actually sent the waiter's call.
 // Step 04: the cooking is wrapped in a custom span, counted in metrics and logged.
 // ?burn=true makes it fail, so you can see an error span in the trace.
+// Step 05: chaos (fault injection) runs first, and the dish now needs Postgres ("cooked at"),
+// so stopping Postgres really breaks this endpoint.
 app.MapGet("/dish-of-the-day", async (HttpContext http, KitchenMetrics metrics, ILogger<Program> logger,
-    CancellationToken ct, bool burn = false) =>
+    Chaos chaos, NpgsqlDataSource db, CancellationToken ct, bool burn = false) =>
 {
+    if (await chaos.ApplyAsync(ct))
+    {
+        // 503 = a transient failure, which the caller's retry strategy treats as worth retrying.
+        return Results.Problem("Chaos: injected failure.", statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
     const string dish = "Dal Baati Churma";
     var started = Stopwatch.GetTimestamp();
     string? cookSpanId;
+    DateTime cookedAt;
 
     // A child span of the ASP.NET Core server span (Activity.Current is the implicit parent).
     using (var activity = KitchenTelemetry.ActivitySource.StartActivity("cook dish"))
@@ -47,6 +66,12 @@ app.MapGet("/dish-of-the-day", async (HttpContext http, KitchenMetrics metrics, 
         // null when no listener subscribed to this ActivitySource: the span was never created.
         cookSpanId = activity?.SpanId.ToString();
         activity?.SetTag("kitchen.dish.name", dish);
+
+        // Throws NpgsqlException when Postgres is down → 500 → the waiter retries.
+        await using (var cmd = db.CreateCommand("SELECT now()"))
+        {
+            cookedAt = (DateTime)(await cmd.ExecuteScalarAsync(ct))!;
+        }
 
         // Pretend to cook: 50-300 ms, so the span has a visible width in the dashboard.
         await Task.Delay(TimeSpan.FromMilliseconds(Random.Shared.Next(50, 300)), ct);
@@ -68,6 +93,7 @@ app.MapGet("/dish-of-the-day", async (HttpContext http, KitchenMetrics metrics, 
         Dish: dish,
         CookedBy: $"kitchen (pid {Environment.ProcessId})",
         ListeningOn: $"{http.Request.Scheme}://{http.Request.Host}",
+        CookedAt: cookedAt,
         Trace: new TraceInfo(
             // Learning aid: the W3C header the waiter's HttpClient sent, the trace we joined,
             // and whether our custom span existed.
@@ -75,6 +101,16 @@ app.MapGet("/dish-of-the-day", async (HttpContext http, KitchenMetrics metrics, 
             TraceId: Activity.Current?.TraceId.ToString(),
             CookSpanId: cookSpanId)));
 });
+
+// Step 05: turn fault injection on/off and read the counters (how many attempts actually arrived).
+// POST /chaos?failRate=0.5&delayMs=0   (both optional, default 0 = off; counters are reset)
+app.MapPost("/chaos", (Chaos chaos, double failRate = 0, int delayMs = 0) =>
+{
+    chaos.Settings = new ChaosSettings(Math.Clamp(failRate, 0, 1), Math.Max(delayMs, 0));
+    chaos.ResetCounters();
+    return chaos.Status;
+});
+app.MapGet("/chaos", (Chaos chaos) => chaos.Status);
 
 // Proves the Postgres connection string works. Reads only server metadata: no tables are created.
 app.MapGet("/infra/postgres", async (NpgsqlDataSource db, CancellationToken ct) =>
@@ -115,7 +151,7 @@ app.MapGet("/debug/connection-strings", (IConfiguration config) =>
 
 app.Run();
 
-internal sealed record DishOfTheDay(string Dish, string CookedBy, string ListeningOn, TraceInfo Trace);
+internal sealed record DishOfTheDay(string Dish, string CookedBy, string ListeningOn, DateTime CookedAt, TraceInfo Trace);
 
 internal sealed record TraceInfo(string? ReceivedTraceparent, string? TraceId, string? CookSpanId);
 

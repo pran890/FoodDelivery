@@ -9,10 +9,10 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 05 — Health and resilience (🔄 In progress)
+## Current step: 05 — Health and resilience (👀 In review)
 - [x] Brief
-- [ ] Build
-- [ ] Learning doc + verified experiments
+- [x] Build: `/health` + `/alive` in ServiceDefaults; Postgres/Redis checks in Kitchen; standard resilience handler on all HttpClients; chaos switch; AppHost health checks
+- [x] Learning doc + 6 verified experiments: [05-health-and-resilience.md](docs/learning/05-health-and-resilience.md)
 - [ ] **You:** review the doc and run the experiments
 - [ ] Commit + tag `step-05-health-and-resilience`
 
@@ -30,7 +30,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 02 | Aspire basics | | ✅ |
 | 03 | Infrastructure containers | | ✅ |
 | 04 | OpenTelemetry | | ✅ |
-| 05 | Health and resilience | | 🔄 In progress |
+| 05 | Health and resilience | | 👀 In review |
 | 06 | Testing foundation | | ⬜ |
 | 07 | CI | | ⬜ |
 
@@ -141,7 +141,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**4 / 59 done** · Current: Step 05 (in progress)
+**4 / 59 done** · Current: Step 05 (in review)
 
 ## Done log
 | # | Step | Tag | Date |

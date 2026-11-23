@@ -35,5 +35,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
+
+    <!-- Step 05: HTTP resilience pipeline (Polly v8 underneath). 10.x = the .NET 10 line. -->
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.1" />
   </ItemGroup>
 </Project>

@@ -19,4 +19,9 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
   </ItemGroup>
 
+  <!-- Step 05: resilience. Health checks need no package: they ship with ASP.NET Core. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+  </ItemGroup>
+
 </Project>

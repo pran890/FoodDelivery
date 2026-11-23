@@ -45,13 +45,17 @@ var kitchen = builder.AddProject<Projects.FoodDelivery_Sandbox_Kitchen>("kitchen
     .WithReference(sandboxDb)
     .WithReference(redis)
     .WaitFor(sandboxDb)
-    .WaitFor(redis);
+    .WaitFor(redis)
+    // Step 05: the dashboard polls the kitchen's readiness endpoint and shows Healthy/Unhealthy,
+    // and anything that WaitFor(kitchen) now waits for HEALTHY, not just "process started".
+    .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.FoodDelivery_Sandbox_Waiter>("waiter")
     // WithReference: inject kitchen's endpoints into waiter's configuration as
     // environment variables (services__kitchen__https__0, services__kitchen__http__0).
     .WithReference(kitchen)
-    // WaitFor: don't start waiter until kitchen is running.
-    .WaitFor(kitchen);
+    // WaitFor: don't start waiter until kitchen is running (Step 05: and healthy).
+    .WaitFor(kitchen)
+    .WithHttpHealthCheck("/health");
 
 builder.Build().Run();
