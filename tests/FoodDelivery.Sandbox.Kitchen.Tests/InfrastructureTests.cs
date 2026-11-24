@@ -32,6 +32,6 @@ public sealed class InfrastructureTests(KitchenFixture fixture) : KitchenTest(fi
             info = await Client.GetFromJsonAsync<RedisInfo>("/infra/redis", Ct);
         }
 
-        Assert.Equal(3, info?.OrdersServed);
+        Assert.Equal(4, info?.OrdersServed);
     }
 }
