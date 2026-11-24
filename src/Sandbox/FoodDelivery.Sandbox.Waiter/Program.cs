@@ -1,6 +1,5 @@
 // SANDBOX: a throwaway API for learning steps 02-05. Deleted once real services exist.
 using System.Diagnostics;
-using System.Text;
 using Microsoft.Extensions.Http.Resilience;
 using Polly.CircuitBreaker;
 using Polly.Timeout;
