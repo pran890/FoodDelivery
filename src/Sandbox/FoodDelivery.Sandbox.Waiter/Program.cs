@@ -42,7 +42,7 @@ app.MapGet("/order", async (KitchenClient kitchen, CancellationToken ct, bool bu
     }
     catch (BrokenCircuitException ex)
     {
-        // The breaker is open: the kitchen was NOT called at all. Fails in ~1 ms.
+        // The breaker is open: the kitchen was NOT called at all. Fails in milliseconds.
         return KitchenUnavailable("circuit-open", ex);
     }
     catch (TimeoutRejectedException ex)

@@ -9,12 +9,12 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 05 — Health and resilience (👀 In review)
+## Current step: 06 — Testing foundation (🔄 In progress)
 - [x] Brief
-- [x] Build: `/health` + `/alive` in ServiceDefaults; Postgres/Redis checks in Kitchen; standard resilience handler on all HttpClients; chaos switch; AppHost health checks
-- [x] Learning doc + 6 verified experiments: [05-health-and-resilience.md](docs/learning/05-health-and-resilience.md)
+- [ ] Build
+- [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-05-health-and-resilience`
+- [ ] Commit + tag `step-06-testing-foundation`
 
 ## Open questions / waiting on
 - Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
@@ -30,8 +30,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 02 | Aspire basics | | ✅ |
 | 03 | Infrastructure containers | | ✅ |
 | 04 | OpenTelemetry | | ✅ |
-| 05 | Health and resilience | | 👀 In review |
-| 06 | Testing foundation | | ⬜ |
+| 05 | Health and resilience | | ✅ |
+| 06 | Testing foundation | | 🔄 In progress |
 | 07 | CI | | ⬜ |
 
 ### Stage B — Identity (custom authentication)
@@ -141,7 +141,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**4 / 59 done** · Current: Step 05 (in review)
+**5 / 59 done** · Current: Step 06 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -150,3 +150,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 02 | Aspire basics | `step-02-aspire-basics` | 2026-11-17 |
 | 03 | Infrastructure containers | `step-03-infrastructure-containers` | 2026-11-23 |
 | 04 | OpenTelemetry | `step-04-opentelemetry` | 2026-11-23 |
+| 05 | Health and resilience | `step-05-health-and-resilience` | 2026-11-24 |

@@ -123,7 +123,7 @@ The SDK also reads **standard OTel environment variables** such as `OTEL_TRACES_
 ---
 
 ## Break-it experiments
-All were run while building this step; the JSON outputs below are real. Each one needs a code change, then a stop and restart of the AppHost. **Undo each change afterwards.**
+All were run while building this step; the JSON outputs below are real. What you see in the **dashboard** (span counts, red spans, metrics, log links) was not checked by script, so confirm it during review. Each experiment needs a code change, then a stop and restart of the AppHost. **Undo each change afterwards.**
 
 The `/order` response is designed to make propagation visible without opening the dashboard:
 ```json
@@ -175,7 +175,7 @@ for i in $(seq 1 40); do curl -sk https://localhost:7240/order | grep -o '"recei
 What to notice:
 - The **Kitchen wasn't configured at all**, yet it obeys. The default sampler is `ParentBased(AlwaysOn)`: it follows the parent's sampled flag, so a trace is kept or dropped *as a whole* and you never get half traces.
 - Unsampled requests still return a `traceId` and even a `cookSpanId`. The Activity exists, so ids still propagate and logs still carry a TraceId, but it's **not recorded or exported** (`Activity.Recorded == false`).
-- Metrics are **not** sampled: `http.server.request.duration` still counts all 40 requests.
+- Metrics are **not** sampled by a trace sampler, so `http.server.request.duration` should still count all 40 requests; confirm it in the dashboard.
 
 ### 4. An error that crosses services
 `GET https://localhost:7240/order?burn=true` → `500` from the Waiter (measured: three calls, three 500s).

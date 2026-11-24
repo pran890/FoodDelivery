@@ -170,15 +170,15 @@ curl -sk -w " [%{http_code}]\n" $K/alive
 - **Dashboard:** kitchen shows as Unhealthy, and postgres as exited.
 
 Sequential orders (`for i in 1 2 3 4; do curl -sk $W/order; done`) → measured: **all 4 `timeout` at 8.03 s**, 16 attempts, and **the breaker never opened**. Two lessons:
-- **The Windows quirk:** a refused localhost connection takes about **2 s** on Windows (it retries the SYN; `curl http://127.0.0.1:31901` measured 2.04 s). Npgsql tries `localhost` as `::1` and then `127.0.0.1`, so a Kitchen call takes about **4.1 s**. That's longer than the 2 s attempt timeout, so you get timeouts instead of fast 500s. On Linux this would be an instant 500.
-- **Slow failures can keep the breaker closed:** 4 attempts per 8 s order is fewer than the minimum of 10 per 10 s window.
+- **The Windows quirk:** a refused localhost connection takes about **2 s** on Windows, because it retries the connection attempt. Measured with a plain socket on the closed port: `127.0.0.1` refused in 2.07 s, `::1` in 2.02 s. `localhost` resolves to both and they are tried in turn, which matches the **4.1 s** a direct Kitchen call took. That is longer than the 2 s attempt timeout, so you get timeouts instead of fast 500s. On Linux a refused connection normally fails at once (not tested here).
+- **Slow failures can keep the breaker closed:** 4 attempts per 8 s order is fewer than the minimum of 10 per 10 s window (the likely explanation; the breaker state itself was not inspected).
 
 Now send concurrent load:
 ```bash
 for i in $(seq 1 10); do (curl -sk $W/order | grep -o '"reason":"[^"]*"') & done; wait
 curl -sk -w " t=%{time_total}s\n" $W/order
 ```
-→ measured: **10 × `circuit-open`**, then the next call is `circuit-open` in **0.026 s**, and the Kitchen received **15** attempts instead of about 40. Under real traffic the breaker does its job.
+→ measured: **10 × `circuit-open`**, then the next call is `circuit-open` in **0.026 s**, and the Kitchen received **15** attempts instead of the 40 that 10 orders × 4 attempts would make. Under real traffic the breaker does its job.
 
 **Recovery:**
 ```bash
