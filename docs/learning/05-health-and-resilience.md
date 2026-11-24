@@ -170,7 +170,7 @@ curl -sk -w " [%{http_code}]\n" $K/alive
 - **Dashboard:** kitchen shows as Unhealthy, and postgres as exited.
 
 Sequential orders (`for i in 1 2 3 4; do curl -sk $W/order; done`) → measured: **all 4 `timeout` at 8.03 s**, 16 attempts, and **the breaker never opened**. Two lessons:
-- **The Windows quirk:** a refused localhost connection takes about **2 s** on Windows, because it retries the connection attempt. Measured with a plain socket on the closed port: `127.0.0.1` refused in 2.07 s, `::1` in 2.02 s. `localhost` resolves to both and they are tried in turn, which matches the **4.1 s** a direct Kitchen call took. That is longer than the 2 s attempt timeout, so you get timeouts instead of fast 500s. On Linux a refused connection normally fails at once (not tested here).
+- **The Windows quirk:** a refused localhost connection takes about **2 s** on Windows, because it retries the connection attempt. Measured with a plain socket on the closed port: `127.0.0.1` refused in 2.07 s, `::1` in 2.02 s. `localhost` resolves to both and they are tried in turn, which matches the **4.1 s** a direct Kitchen call took. That is longer than the 2 s attempt timeout, so you get timeouts instead of fast 500s. On Linux a refused connection fails at once: Step 07 measured the dead-Postgres test at 97 ms on a CI runner, against about 2.5 s on Windows.
 - **Slow failures can keep the breaker closed:** 4 attempts per 8 s order is fewer than the minimum of 10 per 10 s window (the likely explanation; the breaker state itself was not inspected).
 
 Now send concurrent load:

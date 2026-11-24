@@ -9,12 +9,13 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 07 — CI (🔄 In progress)
+## Current step: 08 — Vertical slices + EF Core basics (🔄 In progress)
 - [x] Brief
+- [ ] 🗄️ Schema review: Users, Roles, UserRoles (waiting for your approval)
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-07-ci`
+- [ ] Commit + tag `step-08-vertical-slices-and-ef-core`
 
 ## Open questions / waiting on
 - Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
@@ -32,12 +33,12 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 04 | OpenTelemetry | | ✅ |
 | 05 | Health and resilience | | ✅ |
 | 06 | Testing foundation | | ✅ |
-| 07 | CI | | 🔄 In progress |
+| 07 | CI | | ✅ |
 
 ### Stage B — Identity (custom authentication)
 | # | Step | Schema review | Status |
 |---|---|---|---|
-| 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | ⬜ |
+| 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | 🔄 In progress |
 | 09 | Email OTP (Redis keys) | 🗄️ | ⬜ |
 | 10 | Rate limiting (Redis keys) | 🗄️ | ⬜ |
 | 11 | JWT issuing (claims contract) | 🗄️ | ⬜ |
@@ -141,7 +142,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**6 / 59 done** · Current: Step 07 (in progress)
+**7 / 59 done** · Current: Step 08 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -152,3 +153,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 04 | OpenTelemetry | `step-04-opentelemetry` | 2026-11-23 |
 | 05 | Health and resilience | `step-05-health-and-resilience` | 2026-11-24 |
 | 06 | Testing foundation | `step-06-testing-foundation` | 2026-11-24 |
+| 07 | CI | `step-07-ci` | 2026-11-24 |

@@ -1,0 +1,69 @@
+# Step 07: build and test every change on a clean Linux machine.
+# The same commands run locally with tools/ci.ps1.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The token this workflow gets can read the repo and nothing else.
+permissions:
+  contents: read
+
+# A newer push to the same pull request cancels the run it replaces.
+# On main nothing is cancelled: every commit there should have its own result.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    # A fixed version, not ubuntu-latest, which changes under you. Docker is preinstalled (Testcontainers).
+    runs-on: ubuntu-24.04
+    # The default is 6 hours: a hung container would burn all of it.
+    timeout-minutes: 15
+    strategy:
+      # Let both jobs finish, so one failure doesn't hide another.
+      fail-fast: false
+      # One job per entry, in parallel, each on its own fresh machine.
+      matrix:
+        include:
+          - name: Architecture
+            project: tests/FoodDelivery.ArchitectureTests
+          - name: Kitchen
+            project: tests/FoodDelivery.Sandbox.Kitchen.Tests
+
+    steps:
+      # Actions are pinned to a commit, not a tag: a tag can be moved to other code later.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # no later step needs git access
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      # The key changes exactly when the packages can change. On a miss, restore-keys falls back to
+      # the newest older cache, so only new packages are downloaded.
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore
+
+      # The whole solution, so a project without tests still has to compile.
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --project ${{ matrix.project }} --configuration Release --no-build --output Detailed
