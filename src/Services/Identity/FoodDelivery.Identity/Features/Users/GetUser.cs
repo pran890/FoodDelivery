@@ -7,7 +7,7 @@ namespace FoodDelivery.Identity.Features.Users;
 // DEVELOPMENT ONLY: it returns an email address, and nothing protects it until tokens exist (Step 11).
 internal static class GetUser
 {
-    // The same shape as CreateUser's response today, but deliberately not shared: slices change
+    // Similar to VerifyOtp's response, but deliberately not shared: slices change
     // independently, and a shared type would tie them together.
     internal sealed record Response(Guid Id, string Email, DateTimeOffset CreatedAt, IReadOnlyList<string> Roles);
 

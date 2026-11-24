@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="MailKit" />
     <!-- Only used by the dotnet-ef tool to generate migrations; not part of the published app. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
   </ItemGroup>

@@ -77,7 +77,7 @@ Each service owns its own database. No service reads another service's database.
 - **Auth: fully custom** (no OpenIddict, no ASP.NET Core Identity). The developer chose this to learn it end to end.
   - **Tables:** `Users`, `Roles`, `UserRoles`, `Sessions` (one per device login), `RefreshTokens`, `SigningKeys`.
   - **Email OTP:**
-    - Kept in Redis as `otp:{email}`, holding an **HMAC-SHA256** of the 6-digit code, with a 5-minute TTL, at most 5 attempts, single use, and constant-time comparison.
+    - Kept in Redis as the hash `otp:{email}` (`mac`, `attempts`), holding an **HMAC-SHA256** of the email and the 6-digit code, with a 5-minute TTL, at most 5 attempts, single use, and constant-time comparison.
     - Rate limited per email (Redis) and per IP.
     - The response is always `202`, so it never reveals whether an email exists.
     - Sent through `IOtpSender` (`EmailOtpSender` via MailKit to Mailpit; a `WhatsAppOtpSender` can be added later).
@@ -112,6 +112,7 @@ Each service owns its own database. No service reads another service's database.
 ## 12 GB RAM rules
 - **WSL2:** capped at **6 GB** in `%USERPROFILE%\.wslconfig`.
 - **Containers:** each one gets a memory cap. Postgres is capped at 512 MB, Redis at 128 MB and Mailpit at 64 MB. RabbitMQ only from step 26.
+  - **Redis itself is limited to 96 MB with `noeviction`,** set by the AppHost when Redis is ready. A restart without the AppHost loses the limit until the AppHost runs again.
   - **Always set `--memory-swap` equal to `--memory`.** With `--memory` alone, Docker allows the same amount again as swap.
   - **Aspire does not re-apply changed runtime args to an existing persistent container.** After changing them, run `tools\infra.ps1 remove`; volumes are kept.
   - **Persistent containers keep running after the AppHost stops.** Run `tools\infra.ps1 stop` to free RAM.

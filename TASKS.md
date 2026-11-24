@@ -9,16 +9,16 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 09 — Email OTP (🔄 In progress)
+## Current step: 10 — Rate limiting (🔄 In progress)
 - [x] Brief
-- [ ] 🗄️ Schema review: OTP Redis keys (waiting for your approval)
+- [ ] 🗄️ Schema review: rate limit Redis keys (waiting for your approval)
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-09-email-otp`
+- [ ] Commit + tag `step-10-rate-limiting`
 
 ## Open questions / waiting on
-- Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
+- Nothing open.
 
 ---
 
@@ -39,8 +39,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | # | Step | Schema review | Status |
 |---|---|---|---|
 | 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | ✅ |
-| 09 | Email OTP (Redis keys) | 🗄️ | 🔄 In progress |
-| 10 | Rate limiting (Redis keys) | 🗄️ | ⬜ |
+| 09 | Email OTP (Redis keys) | 🗄️ | ✅ |
+| 10 | Rate limiting (Redis keys) | 🗄️ | 🔄 In progress |
 | 11 | JWT issuing (claims contract) | 🗄️ | ⬜ |
 | 12 | JWT validation in another service | | ⬜ |
 | 13 | Sessions + refresh rotation | 🗄️ | ⬜ |
@@ -142,7 +142,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**8 / 59 done** · Current: Step 09 (in progress)
+**9 / 59 done** · Current: Step 10 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -155,3 +155,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 06 | Testing foundation | `step-06-testing-foundation` | 2026-11-24 |
 | 07 | CI | `step-07-ci` | 2026-11-24 |
 | 08 | Vertical slices + EF Core basics | `step-08-vertical-slices-and-ef-core` | 2026-11-24 |
+| 09 | Email OTP | `step-09-email-otp` | 2026-11-24 |

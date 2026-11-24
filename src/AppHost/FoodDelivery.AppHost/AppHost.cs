@@ -1,3 +1,5 @@
+using StackExchange.Redis;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // ---------------------------------------------------------------------------
@@ -23,20 +25,29 @@ var postgres = builder.AddPostgres("postgres")
 var sandboxDb = postgres.AddDatabase("sandboxdb");
 var identityDb = postgres.AddDatabase("identitydb");
 
-// Step 08 needs only Postgres and Identity. WithExplicitStart: listed in the dashboard but not
-// started until you press Start there, so it costs no RAM (Redis and Mailpit return in Step 09).
 
 var redis = builder.AddRedis("redis")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume("fooddelivery-redis-data")
     .WithContainerRuntimeArgs("--memory=128m", "--memory-swap=128m")
-    .WithExplicitStart();
+    // Step 09: below the container cap, so a full Redis refuses writes with an error we can see,
+    // instead of being killed by Docker. AddRedis has no setting for it, so it is applied once Redis
+    // is ready. (The eviction policy is already noeviction by default: never drop codes silently.)
+    .OnResourceReady(async (resource, _, ct) =>
+    {
+        var connectionString = await resource.ConnectionStringExpression.GetValueAsync(ct);
+        await using var connection = await ConnectionMultiplexer.ConnectAsync(connectionString + ",allowAdmin=true");
+        await connection.GetServer(connection.GetEndPoints()[0]).ConfigSetAsync("maxmemory", "96mb");
+    });
 
-// Fake SMTP server with a web inbox. Nothing sends mail until Step 09 (OTP).
-builder.AddMailPit("mailpit")
+// Fake SMTP server with a web inbox: it catches every email (Step 09: the OTP codes).
+var mailpit = builder.AddMailPit("mailpit")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithContainerRuntimeArgs("--memory=64m", "--memory-swap=64m")
-    .WithExplicitStart();
+    .WithContainerRuntimeArgs("--memory=64m", "--memory-swap=64m");
+
+// Generated on the first run and kept in the AppHost user secrets, like the container passwords.
+var otpHmacKey = builder.AddParameter(
+    "otp-hmac-key", new GenerateParameterDefault { MinLength = 44 }, secret: true, persist: true);
 
 // ---------------------------------------------------------------------------
 // Services
@@ -45,10 +56,14 @@ builder.AddMailPit("mailpit")
 // Step 08: the first real service.
 builder.AddProject<Projects.FoodDelivery_Identity>("identity")
     .WithReference(identityDb)
+    .WithReference(redis)
+    .WithReference(mailpit)
+    .WithEnvironment("Otp__HmacKey", otpHmacKey)
     .WaitFor(identityDb)
+    .WaitFor(redis)
     .WithHttpHealthCheck("/health");
 
-// SANDBOX (steps 02-05): start redis, then kitchen, then waiter by hand in the dashboard.
+// SANDBOX (steps 02-05): start kitchen, then waiter by hand in the dashboard (WithExplicitStart).
 // A "resource" is anything the AppHost manages: a .NET project, a container, an executable.
 // The string is the resource NAME. The dashboard shows it, and other services use it to
 // find this one ("https+http://kitchen").

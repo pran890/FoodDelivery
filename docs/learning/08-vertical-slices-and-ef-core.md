@@ -3,6 +3,8 @@
 > **Topic:** the first real service (Identity) as vertical slices, EF Core with Postgres, migrations, and seeding.
 > **Tag when approved:** `step-08-vertical-slices-and-ef-core`
 
+> **Since Step 09** `POST /users` (the `CreateUser` slice) is gone: verifying an email code creates the user. To repeat the experiments that use it, check out this step's tag.
+
 ## Why this matters for this project
 Every later service needs the same three things: a way to organise code, a way to map objects to tables, and a safe way to change those tables while data is in them. This step sets the pattern for all of them, and creates the tables that login (Steps 09–16) builds on.
 
@@ -14,7 +16,7 @@ Every later service needs the same three things: a way to organise code, a way t
 | [Migrations/](../../src/Services/Identity/FoodDelivery.Identity/Data/Migrations/) | `InitialCreate`, generated |
 | [DatabaseSetup.cs](../../src/Services/Identity/FoodDelivery.Identity/Data/DatabaseSetup.cs) | Migrate and seed the admin at startup, Development only |
 | [IdentityDbHealthCheck.cs](../../src/Services/Identity/FoodDelivery.Identity/Data/IdentityDbHealthCheck.cs) | Readiness |
-| [CreateUser.cs](../../src/Services/Identity/FoodDelivery.Identity/Features/Users/CreateUser.cs), [GetUser.cs](../../src/Services/Identity/FoodDelivery.Identity/Features/Users/GetUser.cs) | The two slices, Development only |
+| [CreateUser.cs](https://github.com/pran890/FoodDelivery/blob/step-08-vertical-slices-and-ef-core/src/Services/Identity/FoodDelivery.Identity/Features/Users/CreateUser.cs), [GetUser.cs](../../src/Services/Identity/FoodDelivery.Identity/Features/Users/GetUser.cs) | The two slices, Development only |
 | [EmailAddress.cs](../../src/Services/Identity/FoodDelivery.Identity/Features/Users/EmailAddress.cs) | Decides when two emails are the same |
 | [Identity tests](../../tests/FoodDelivery.Identity.Tests/) | 25 tests |
 | [AppHost.cs](../../src/AppHost/FoodDelivery.AppHost/AppHost.cs) | + `identitydb` and `identity`. Redis, Mailpit and the Sandbox now start by hand (`WithExplicitStart`). |

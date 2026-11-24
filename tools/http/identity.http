@@ -1,24 +1,31 @@
-# Identity requests (Step 08). Start the AppHost first:
+# Identity requests. Start the AppHost first:
 #   dotnet run --project src/AppHost/FoodDelivery.AppHost
-# These endpoints have no login yet and exist in Development only.
+# Emails arrive in Mailpit: open its link in the Aspire dashboard.
 
 @identity = https://localhost:7150
+@email = asha@example.com
 
-### Create a user (201). Send it again, or in capitals: 409
-# @name create
-POST {{identity}}/users
+### Step 09: ask for a code. Always 202, whether the account exists or not
+POST {{identity}}/auth/otp/request
 Content-Type: application/json
 
-{ "email": "Asha@Example.com" }
+{ "email": "{{email}}" }
 
-### Read the user created above
-GET {{identity}}/users/{{create.response.body.id}}
+### Step 09: sign in with the code from Mailpit (creates the user the first time)
+# @name verify
+POST {{identity}}/auth/otp/verify
+Content-Type: application/json
+
+{ "email": "{{email}}", "code": "000000" }
+
+### Read the user who just signed in (Development only until Step 11)
+GET {{identity}}/users/{{verify.response.body.id}}
 
 ### Not a valid email (400)
-POST {{identity}}/users
+POST {{identity}}/auth/otp/request
 Content-Type: application/json
 
 { "email": "not-an-email" }
 
-### Readiness, including the database
+### Readiness: database and Redis. Redis down = "Degraded", still 200
 GET {{identity}}/health
