@@ -20,12 +20,11 @@
 
   <!--
     Each referenced project becomes a generated type in the Projects namespace
-    (FoodDelivery.Sandbox.Kitchen -> Projects.FoodDelivery_Sandbox_Kitchen) that AppHost.cs uses.
+    (FoodDelivery.Identity -> Projects.FoodDelivery_Identity) that AppHost.cs uses.
   -->
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Identity\FoodDelivery.Identity\FoodDelivery.Identity.csproj" />
-    <ProjectReference Include="..\..\Sandbox\FoodDelivery.Sandbox.Kitchen\FoodDelivery.Sandbox.Kitchen.csproj" />
-    <ProjectReference Include="..\..\Sandbox\FoodDelivery.Sandbox.Waiter\FoodDelivery.Sandbox.Waiter.csproj" />
+    <ProjectReference Include="..\..\Services\Catalog\FoodDelivery.Catalog\FoodDelivery.Catalog.csproj" />
   </ItemGroup>
 
 </Project>

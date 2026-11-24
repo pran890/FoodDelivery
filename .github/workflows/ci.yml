@@ -36,8 +36,8 @@ jobs:
         include:
           - name: Architecture
             project: tests/FoodDelivery.ArchitectureTests
-          - name: Kitchen
-            project: tests/FoodDelivery.Sandbox.Kitchen.Tests
+          - name: Catalog
+            project: tests/FoodDelivery.Catalog.Tests
           - name: Identity
             project: tests/FoodDelivery.Identity.Tests
 

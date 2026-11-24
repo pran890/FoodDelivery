@@ -1,0 +1,18 @@
+# Catalog requests (Step 12). Start the AppHost, sign in with identity.http, and paste the access token here.
+# Don't commit a real token: the repository is public.
+
+@catalog = https://localhost:7160
+@token = paste-the-access-token-here
+
+### No token: 401
+GET {{catalog}}/whoami
+
+### Who am I, according to the token alone
+GET {{catalog}}/whoami
+Authorization: Bearer {{token}}
+
+### Not marked public, so even an unknown address is 401 without a token
+GET {{catalog}}/no-such-page
+
+### Readiness needs no token
+GET {{catalog}}/health

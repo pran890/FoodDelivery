@@ -25,7 +25,7 @@
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.5" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.MailPit" Version="13.6.1" />
 
-    <!-- Step 03: plain client libraries (the sandbox reads connection strings by hand) -->
+    <!-- Step 03: plain client libraries -->
     <PackageVersion Include="Npgsql" Version="10.0.4" />
     <PackageVersion Include="StackExchange.Redis" Version="3.4.35" />
 
@@ -55,7 +55,10 @@
     <PackageVersion Include="MailKit" Version="5.0.0" />
     <PackageVersion Include="Testcontainers" Version="4.17.0" />
 
-    <!-- Step 11: creating and reading JWTs -->
+    <!-- Step 11: creating and reading JWTs. Step 12: checking them. All IdentityModel packages must have the
+         same version, so Protocols.OpenIdConnect (which JwtBearer brings in) is pinned as well. -->
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.23.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
   </ItemGroup>
 </Project>

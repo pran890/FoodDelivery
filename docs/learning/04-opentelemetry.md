@@ -3,6 +3,8 @@
 > **Topic:** traces, metrics and logs with OpenTelemetry, a custom `ActivitySource` and `Meter`, and W3C `traceparent` propagation between two APIs, all viewed in the Aspire dashboard.
 > **Tag when approved:** `step-04-opentelemetry`
 
+> **Since Step 12** the Sandbox (Kitchen and Waiter) is gone. Its links below lead to this step's tag, and to run its experiments check out `step-04-opentelemetry`.
+
 ## Why this matters for this project
 One customer order will pass through Gateway → Order → Catalog → Payment → Delivery, partly over HTTP and partly over RabbitMQ. When it's slow or fails you need to answer *which service, which call, how long, and what did it log*, for **that one order**. Logs on their own can't answer that across 10 processes. Distributed tracing can, as long as every service passes the trace context along. This step sets that up once in ServiceDefaults, so every future service gets it for free.
 
@@ -11,10 +13,10 @@ One customer order will pass through Gateway → Order → Catalog → Payment �
 |---|---|
 | [ServiceDefaults Extensions.cs](../../src/ServiceDefaults/FoodDelivery.ServiceDefaults/Extensions.cs) | `ConfigureOpenTelemetry()`: logs + metrics + tracing, ASP.NET Core / HttpClient / runtime instrumentation, the service's own source and meter, OTLP exporter. Called from `AddServiceDefaults()`. |
 | [ServiceDefaults .csproj](../../src/ServiceDefaults/FoodDelivery.ServiceDefaults/FoodDelivery.ServiceDefaults.csproj) and [Directory.Packages.props](../../Directory.Packages.props) | + `OpenTelemetry.Extensions.Hosting`, `.Exporter.OpenTelemetryProtocol`, `.Instrumentation.AspNetCore`, `.Instrumentation.Http`, `.Instrumentation.Runtime` (all 1.21.0) |
-| [KitchenTelemetry.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs) | `ActivitySource`, `KitchenMetrics` (counter + histogram via `IMeterFactory`), source-generated log methods |
-| [Kitchen Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | `/dish-of-the-day` cooks inside a custom `cook dish` span, records metrics, logs; `?burn=true` fails it. The response shows the received `traceparent`, the trace id, and the custom span id. |
-| [Waiter Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs) | **No tracing code**, only passes `?burn` on and returns its own trace id to compare. |
-| [tools/http/sandbox.http](../../tools/http/sandbox.http) | + three Step 04 requests |
+| [KitchenTelemetry.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs) | `ActivitySource`, `KitchenMetrics` (counter + histogram via `IMeterFactory`), source-generated log methods |
+| [Kitchen Program.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | `/dish-of-the-day` cooks inside a custom `cook dish` span, records metrics, logs; `?burn=true` fails it. The response shows the received `traceparent`, the trace id, and the custom span id. |
+| [Waiter Program.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs) | **No tracing code**, only passes `?burn` on and returns its own trace id to compare. |
+| [tools/http/sandbox.http](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/tools/http/sandbox.http) | + three Step 04 requests |
 
 No new containers. The Aspire dashboard was already running and is the telemetry backend.
 
@@ -31,7 +33,7 @@ No new containers. The Aspire dashboard was already running and is the telemetry
 
 **OpenTelemetry** is the vendor-neutral standard: an API, an SDK, semantic conventions (standard names such as `http.request.method`), and a wire protocol (**OTLP**). Your code emits telemetry once, and the backend is swappable: the Aspire dashboard here, Jaeger/Tempo/Grafana/Azure Monitor elsewhere.
 
-**.NET twist:** you never write against OpenTelemetry types in application code. `Activity`, `ActivitySource`, `Meter` and `ILogger` are built into .NET (`System.Diagnostics`). The OTel SDK is a **listener** that subscribes to them. So [KitchenTelemetry.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs) has no OpenTelemetry `using` at all, and libraries can be instrumented without depending on OTel.
+**.NET twist:** you never write against OpenTelemetry types in application code. `Activity`, `ActivitySource`, `Meter` and `ILogger` are built into .NET (`System.Diagnostics`). The OTel SDK is a **listener** that subscribes to them. So [KitchenTelemetry.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs) has no OpenTelemetry `using` at all, and libraries can be instrumented without depending on OTel.
 
 ### 2. Traces and spans
 A **trace** is a tree of **spans**. A span has a name, start and end time, attributes (tags), a status (Unset / Ok / Error), events, and a parent. In .NET a span is called an **`Activity`**, for historical reasons.
@@ -136,7 +138,7 @@ The `/order` response is designed to make propagation visible without opening th
 Same `traceId` on both sides = one trace. In the dashboard, **Traces** shows `waiter: GET /order` with 4 spans across 2 resources.
 
 ### 1. Drop propagation and watch the trace split in two
-**1a.** In [Waiter Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs), after `builder.AddServiceDefaults();`, add:
+**1a.** In [Waiter Program.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs), after `builder.AddServiceDefaults();`, add:
 ```csharp
 DistributedContextPropagator.Current = DistributedContextPropagator.CreateNoOutputPropagator();
 ```
@@ -154,7 +156,7 @@ Restart, call `/order` →
 Two different trace ids. In the dashboard you now get **two traces** per request: `waiter: GET /order` (2 spans) and `kitchen: GET /dish-of-the-day` (2 spans), with nothing linking them. That's what a missing propagator looks like in production: "the trace stops at service X". Common real causes: a proxy or gateway that strips headers, a message bus without context injection, or a hand-built `HttpClient` / raw socket that bypasses instrumentation.
 
 ### 2. Forget to register your ActivitySource
-In [KitchenTelemetry.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs), change `SourceName` to `"Kitchen.Cooking"`. Restart, call `/order` →
+In [KitchenTelemetry.cs](https://github.com/pran890/FoodDelivery/blob/step-04-opentelemetry/src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenTelemetry.cs), change `SourceName` to `"Kitchen.Cooking"`. Restart, call `/order` →
 ```json
 "trace": { "receivedTraceparent": "00-9d36...-03", "traceId": "9d369d683267f75a5788baf72f887454", "cookSpanId": null }
 ```

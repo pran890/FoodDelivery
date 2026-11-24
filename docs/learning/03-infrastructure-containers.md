@@ -3,6 +3,8 @@
 > **Topic:** running Postgres, Redis and Mailpit as containers from the AppHost. Covers container **lifetime**, **volumes**, **memory caps**, and how **connection strings** reach a service.
 > **Tag when approved:** `step-03-infrastructure-containers`
 
+> **Since Step 12** the Sandbox (Kitchen and Waiter) is gone. Its links below lead to this step's tag, and to run its experiments check out `step-03-infrastructure-containers`.
+
 ## Why this matters for this project
 Every service from Step 08 on needs a database, a cache or an SMTP server. Installing them on Windows means version drift, services always running in the background, and no clean reset. Containers give us:
 - The exact versions we choose.
@@ -17,10 +19,10 @@ This step sets up that infrastructure once, and shows how it behaves when things
 |---|---|
 | [AppHost.cs](../../src/AppHost/FoodDelivery.AppHost/AppHost.cs) | `AddPostgres` (PostGIS image, tuned), `AddRedis`, `AddMailPit`, each **Persistent** with a **named volume** and a **real memory cap**; Kitchen references the database and Redis. |
 | [AppHost .csproj](../../src/AppHost/FoodDelivery.AppHost/FoodDelivery.AppHost.csproj) | + hosting integrations `Aspire.Hosting.PostgreSQL`, `Aspire.Hosting.Redis`, `CommunityToolkit.Aspire.Hosting.MailPit` |
-| [Kitchen Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | Reads `ConnectionStrings:sandboxdb` and `ConnectionStrings:redis` by hand. New endpoints `/infra/postgres`, `/infra/redis`, `/debug/connection-strings`. |
-| [Kitchen .csproj](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj) | + plain `Npgsql` and `StackExchange.Redis` clients |
+| [Kitchen Program.cs](https://github.com/pran890/FoodDelivery/blob/step-03-infrastructure-containers/src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | Reads `ConnectionStrings:sandboxdb` and `ConnectionStrings:redis` by hand. New endpoints `/infra/postgres`, `/infra/redis`, `/debug/connection-strings`. |
+| [Kitchen .csproj](https://github.com/pran890/FoodDelivery/blob/step-03-infrastructure-containers/src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj) | + plain `Npgsql` and `StackExchange.Redis` clients |
 | [tools/infra.ps1](../../tools/infra.ps1) | `status`, `stop`, `start`, `remove` (containers only), `reset` (containers + volumes) |
-| [tools/http/sandbox.http](../../tools/http/sandbox.http) | + the three new endpoints |
+| [tools/http/sandbox.http](https://github.com/pran890/FoodDelivery/blob/step-03-infrastructure-containers/tools/http/sandbox.http) | + the three new endpoints |
 | [CLAUDE.md](../../CLAUDE.md) | RAM rules updated with the gotchas below |
 
 **No product data structures were created.** There are no tables, PostGIS isn't enabled in any database, and the only data is a throwaway database `sandboxdb` and a throwaway key `sandbox:kitchen:orders-served`. Real schemas start in Step 08, after your review.

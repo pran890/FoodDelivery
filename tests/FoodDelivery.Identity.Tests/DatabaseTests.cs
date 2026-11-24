@@ -58,6 +58,26 @@ public sealed class DatabaseTests(IdentityFixture fixture) : IdentityTest(fixtur
         Assert.Equal("ck_users_email_lowercase", error.ConstraintName);
     }
 
+    // Step 05's most important rule: a dead database fails readiness, never liveness (a restart fixes nothing).
+    [Fact]
+    public async Task Dead_database_fails_readiness_but_not_liveness()
+    {
+        // An Identity with its own database, which is dropped after the start.
+        var connectionString = new NpgsqlConnectionStringBuilder(Fixture.ConnectionString) { Database = "doomed" }.ConnectionString;
+        await using var factory = Fixture.CreateFactory(("ConnectionStrings:identitydb", connectionString));
+        using var client = factory.CreateClient();
+        await using var admin = new NpgsqlConnection(Fixture.ConnectionString);
+        await admin.OpenAsync(Ct);
+        await using var drop = new NpgsqlCommand("DROP DATABASE doomed WITH (FORCE)", admin);
+        await drop.ExecuteNonQueryAsync(Ct);
+
+        using var health = await client.GetAsync("/health", Ct);
+        using var alive = await client.GetAsync("/alive", Ct);
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, health.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, alive.StatusCode);
+    }
+
     [Fact]
     public async Task Identity_is_healthy_when_its_database_is_up()
     {

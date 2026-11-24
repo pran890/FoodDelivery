@@ -9,14 +9,16 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 12 — JWT validation in another service (🔄 In progress)
+## Current step: 13 — Sessions + refresh rotation (🔄 In progress)
 - [x] Brief
+- [ ] 🗄️ Schema review: sessions and refresh tokens (waiting for your approval)
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-12-jwt-validation`
+- [ ] Commit + tag `step-13-sessions-and-refresh`
 
 ## Open questions / waiting on
+- Step 16: a withdrawn key stays accepted for up to 1 hour (last known good keys), and services force a key download at most every 5 minutes. Decide both there (see Step 12).
 - Step 57: make sure `ASPNETCORE_FORWARDEDHEADERS_ENABLED` is not set for services reachable without the gateway (it removes the per-IP limit, see Step 10).
 
 ---
@@ -41,8 +43,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 09 | Email OTP (Redis keys) | 🗄️ | ✅ |
 | 10 | Rate limiting (Redis keys) | 🗄️ | ✅ |
 | 11 | JWT issuing (claims contract) | 🗄️ | ✅ |
-| 12 | JWT validation in another service | | 🔄 In progress |
-| 13 | Sessions + refresh rotation | 🗄️ | ⬜ |
+| 12 | JWT validation in another service | | ✅ |
+| 13 | Sessions + refresh rotation | 🗄️ | 🔄 In progress |
 | 14 | Cookies and CSRF | | ⬜ |
 | 15 | Role and policy authorization (blocking a user) | 🗄️ | ⬜ |
 | 16 | Signing key rotation | 🗄️ | ⬜ |
@@ -141,7 +143,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**11 / 59 done** · Current: Step 12 (in progress)
+**12 / 59 done** · Current: Step 13 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -157,3 +159,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 09 | Email OTP | `step-09-email-otp` | 2026-11-24 |
 | 10 | Rate limiting | `step-10-rate-limiting` | 2026-11-24 |
 | 11 | JWT issuing | `step-11-jwt-issuing` | 2026-11-24 |
+| 12 | JWT validation in another service | `step-12-jwt-validation` | 2026-11-24 |

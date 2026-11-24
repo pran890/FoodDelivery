@@ -3,6 +3,8 @@
 > **Topic:** unit, integration and architecture tests with xUnit v3, `WebApplicationFactory`, Testcontainers (PostGIS + Redis) and NetArchTest, and how to stop tests leaking state into each other.
 > **Tag when approved:** `step-06-testing-foundation`
 
+> **Since Step 12** the Sandbox (Kitchen and Waiter) is gone. Its links below lead to this step's tag, and to run its experiments check out `step-06-testing-foundation`.
+
 ## Why this matters for this project
 Until now every check was a curl command. That doesn't scale to 10 services, and the CI pipeline (Step 07) needs something to run. Fakes aren't enough either: an in-memory stand-in for Postgres can't tell you that a SQL query is wrong or that PostGIS is missing. This step sets up tests that run the **real app** against a **real Postgres and Redis**, and turns the project's rules ("services never reference each other") into tests that fail.
 
@@ -11,13 +13,13 @@ Until now every check was a curl command. That doesn't scale to 10 services, and
 |---|---|
 | [tests/Directory.Build.props](../../tests/Directory.Build.props) | Settings for test projects only. Imports the root file explicitly, because MSBuild stops at the first one it finds. |
 | [tests/.editorconfig](../../tests/.editorconfig) | Allows underscores in test names |
-| [ChaosTests.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/ChaosTests.cs) | **Unit** tests: one class, no I/O |
-| [KitchenFixture.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/KitchenFixture.cs) | Containers + in-memory Kitchen, shared once; the state reset; the test base class |
-| [DishTests.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/DishTests.cs), [InfrastructureTests.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/InfrastructureTests.cs), [HealthTests.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/HealthTests.cs) | **Integration** tests over HTTP |
+| [ChaosTests.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/ChaosTests.cs) | **Unit** tests: one class, no I/O |
+| [KitchenFixture.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/KitchenFixture.cs) | Containers + in-memory Kitchen, shared once; the state reset; the test base class |
+| [DishTests.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/DishTests.cs), [InfrastructureTests.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/InfrastructureTests.cs), [HealthTests.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/HealthTests.cs) | **Integration** tests over HTTP |
 | [ProjectReferenceTests.cs](../../tests/FoodDelivery.ArchitectureTests/ProjectReferenceTests.cs) | **Architecture** rules read from the `.csproj` files |
 | [TypeRuleTests.cs](../../tests/FoodDelivery.ArchitectureTests/TypeRuleTests.cs) | **Architecture** rules on compiled code |
 | [global.json](../../global.json) | `dotnet test` uses Microsoft.Testing.Platform, which xUnit v3 runs on |
-| [Kitchen .csproj](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj) | `InternalsVisibleTo`, so tests can use the Kitchen's internal types |
+| [Kitchen .csproj](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj) | `InternalsVisibleTo`, so tests can use the Kitchen's internal types |
 | [Directory.Packages.props](../../Directory.Packages.props) | + `xunit.v3`, `Microsoft.AspNetCore.Mvc.Testing`, `Testcontainers.PostgreSql`, `Testcontainers.Redis`, `NetArchTest.Rules` |
 
 > Change from the brief: `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk` turned out not to be needed, because xUnit v3 4.x runs on Microsoft.Testing.Platform.
@@ -123,7 +125,7 @@ That last row is a real weakness: because the tests share the Kitchen's records,
 All were run while building this step and the results are real. **Undo each change afterwards** (`git diff` should be empty).
 
 ### 1. Make a test leak state between runs (the roadmap's experiment)
-In [KitchenFixture.cs](../../tests/FoodDelivery.Sandbox.Kitchen.Tests/KitchenFixture.cs), in `KitchenTest`, replace the reset:
+In [KitchenFixture.cs](https://github.com/pran890/FoodDelivery/blob/step-06-testing-foundation/tests/FoodDelivery.Sandbox.Kitchen.Tests/KitchenFixture.cs), in `KitchenTest`, replace the reset:
 ```csharp
 public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 ```

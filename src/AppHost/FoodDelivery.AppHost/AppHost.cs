@@ -11,7 +11,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 // ---------------------------------------------------------------------------
 
 // Postgres with PostGIS in one container. Each service gets its own database
-// on it (added in that service's step); "sandboxdb" is a throwaway for learning.
+// on it (added in that service's step).
 var postgres = builder.AddPostgres("postgres")
     .WithImage("postgis/postgis")
     .WithImageTag("17-3.5")
@@ -22,7 +22,6 @@ var postgres = builder.AddPostgres("postgres")
     // entrypoint. Smaller than the defaults to fit the RAM budget.
     .WithArgs("-c", "shared_buffers=128MB", "-c", "max_connections=50");
 
-var sandboxDb = postgres.AddDatabase("sandboxdb");
 var identityDb = postgres.AddDatabase("identitydb");
 
 
@@ -53,39 +52,25 @@ var otpHmacKey = builder.AddParameter(
 // Services
 // ---------------------------------------------------------------------------
 
-// Step 08: the first real service.
-builder.AddProject<Projects.FoodDelivery_Identity>("identity")
+// A "resource" is anything the AppHost manages: a .NET project, a container, an executable.
+// The string is its NAME: the dashboard shows it, and other services use it to find this one
+// ("https+http://identity").
+var identity = builder.AddProject<Projects.FoodDelivery_Identity>("identity")
+    // For a database or cache, WithReference injects a connection string (ConnectionStrings__identitydb).
     .WithReference(identityDb)
     .WithReference(redis)
     .WithReference(mailpit)
     .WithEnvironment("Otp__HmacKey", otpHmacKey)
     .WaitFor(identityDb)
     .WaitFor(redis)
+    // The dashboard polls readiness, and WaitFor(identity) waits for HEALTHY, not just "started".
     .WithHttpHealthCheck("/health");
 
-// SANDBOX (steps 02-05): start kitchen, then waiter by hand in the dashboard (WithExplicitStart).
-// A "resource" is anything the AppHost manages: a .NET project, a container, an executable.
-// The string is the resource NAME. The dashboard shows it, and other services use it to
-// find this one ("https+http://kitchen").
-var kitchen = builder.AddProject<Projects.FoodDelivery_Sandbox_Kitchen>("kitchen")
-    // For a database or cache, WithReference injects a connection string:
-    // ConnectionStrings__sandboxdb and ConnectionStrings__redis.
-    .WithReference(sandboxDb)
-    .WithReference(redis)
-    .WaitFor(sandboxDb)
-    .WaitFor(redis)
-    // Step 05: the dashboard polls the kitchen's readiness endpoint and shows Healthy/Unhealthy,
-    // and anything that WaitFor(kitchen) now waits for HEALTHY, not just "process started".
-    .WithHttpHealthCheck("/health")
-    .WithExplicitStart();
-
-builder.AddProject<Projects.FoodDelivery_Sandbox_Waiter>("waiter")
-    // WithReference: inject kitchen's endpoints into waiter's configuration as
-    // environment variables (services__kitchen__https__0, services__kitchen__http__0).
-    .WithReference(kitchen)
-    // WaitFor: don't start waiter until kitchen is running (Step 05: and healthy).
-    .WaitFor(kitchen)
-    .WithHttpHealthCheck("/health")
-    .WithExplicitStart();
+// Step 12: Catalog (a skeleton so far) checks tokens with the public keys it gets from Identity.
+builder.AddProject<Projects.FoodDelivery_Catalog>("catalog")
+    // For a service, WithReference injects its addresses (services__identity__https__0).
+    .WithReference(identity)
+    .WaitFor(identity)
+    .WithHttpHealthCheck("/health");
 
 builder.Build().Run();

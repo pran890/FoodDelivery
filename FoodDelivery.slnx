@@ -6,20 +6,19 @@
   <Folder Name="/src/BuildingBlocks/">
     <Project Path="src/BuildingBlocks/FoodDelivery.Contracts/FoodDelivery.Contracts.csproj" />
   </Folder>
-  <Folder Name="/src/Sandbox/">
-    <Project Path="src/Sandbox/FoodDelivery.Sandbox.Kitchen/FoodDelivery.Sandbox.Kitchen.csproj" />
-    <Project Path="src/Sandbox/FoodDelivery.Sandbox.Waiter/FoodDelivery.Sandbox.Waiter.csproj" />
-  </Folder>
   <Folder Name="/src/ServiceDefaults/">
     <Project Path="src/ServiceDefaults/FoodDelivery.ServiceDefaults/FoodDelivery.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Catalog/">
+    <Project Path="src/Services/Catalog/FoodDelivery.Catalog/FoodDelivery.Catalog.csproj" />
+  </Folder>
   <Folder Name="/src/Services/Identity/">
     <Project Path="src/Services/Identity/FoodDelivery.Identity/FoodDelivery.Identity.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FoodDelivery.ArchitectureTests/FoodDelivery.ArchitectureTests.csproj" />
+    <Project Path="tests/FoodDelivery.Catalog.Tests/FoodDelivery.Catalog.Tests.csproj" />
     <Project Path="tests/FoodDelivery.Identity.Tests/FoodDelivery.Identity.Tests.csproj" />
-    <Project Path="tests/FoodDelivery.Sandbox.Kitchen.Tests/FoodDelivery.Sandbox.Kitchen.Tests.csproj" />
   </Folder>
 </Solution>

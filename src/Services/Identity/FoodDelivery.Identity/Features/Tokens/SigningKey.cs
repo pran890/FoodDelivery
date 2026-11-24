@@ -34,9 +34,21 @@ internal sealed class SigningKey : IDisposable
         // The key id is a fingerprint of the PUBLIC key (RFC 7638): the same key always gets the same id.
         key.KeyId = Base64UrlEncoder.Encode(key.ComputeJwkThumbprint());
         Credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
+
+        var publicPart = _rsa.ExportParameters(includePrivateParameters: false);
+        PublicKey = new WellKnown.PublicKey(
+            KeyType: "RSA",
+            Use: "sig",
+            Algorithm: SecurityAlgorithms.RsaSha256,
+            KeyId: key.KeyId,
+            Modulus: Base64UrlEncoder.Encode(publicPart.Modulus),
+            Exponent: Base64UrlEncoder.Encode(publicPart.Exponent));
     }
 
     public SigningCredentials Credentials { get; }
+
+    /// <summary>What other services may see.</summary>
+    public WellKnown.PublicKey PublicKey { get; }
 
     public void Dispose() => _rsa.Dispose();
 

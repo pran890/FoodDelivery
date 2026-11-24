@@ -71,7 +71,8 @@ public static class Extensions
         {
             // Readiness: ALL checks (self + dependencies). Unhealthy → "don't send me traffic".
             app.MapHealthChecks(ReadinessPath, new HealthCheckOptions { ResponseWriter = WriteHealthJson })
-                .DisableRateLimiting(); // Step 10: a limited probe would look like a broken service
+                .DisableRateLimiting() // Step 10: a limited probe would look like a broken service
+                .AllowAnonymous();     // Step 12: the orchestrator has no token
 
             // Liveness: only "live" checks. Unhealthy → "restart me". Never include dependencies
             // here: a database outage would restart every service, which fixes nothing.
@@ -79,7 +80,7 @@ public static class Extensions
             {
                 Predicate = registration => registration.Tags.Contains(LiveTag),
                 ResponseWriter = WriteHealthJson,
-            }).DisableRateLimiting();
+            }).DisableRateLimiting().AllowAnonymous();
         }
 
         return app;
@@ -115,7 +116,7 @@ public static class Extensions
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         // Convention: a service names its own ActivitySource and Meter after its application
-        // (assembly) name, e.g. "FoodDelivery.Sandbox.Kitchen". Only names subscribed here are
+        // (assembly) name, e.g. "FoodDelivery.Identity". Only names subscribed here are
         // recorded; anything else is silently dropped (see the Step 04 experiments).
         var serviceSourceName = builder.Environment.ApplicationName;
 

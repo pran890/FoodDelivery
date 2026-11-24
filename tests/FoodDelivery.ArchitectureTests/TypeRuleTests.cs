@@ -7,14 +7,13 @@ namespace FoodDelivery.ArchitectureTests;
 // Rules about TYPES, checked by NetArchTest on the compiled assemblies.
 public class TypeRuleTests
 {
-    private static readonly Assembly _kitchen = Assembly.Load("FoodDelivery.Sandbox.Kitchen");
     private static readonly Assembly _identity = Assembly.Load("FoodDelivery.Identity");
     private static readonly Assembly _serviceDefaults = Assembly.Load("FoodDelivery.ServiceDefaults");
 
     [Fact]
     public void Health_checks_are_sealed_and_named_consistently()
     {
-        var healthChecks = Types.InAssemblies([_kitchen, _identity]).That().ImplementInterface(typeof(IHealthCheck));
+        var healthChecks = Types.InAssembly(_identity).That().ImplementInterface(typeof(IHealthCheck));
 
         Verify(healthChecks, healthChecks.Should().BeSealed().And().HaveNameEndingWith("HealthCheck", StringComparison.Ordinal));
     }
@@ -29,14 +28,6 @@ public class TypeRuleTests
         Assert.NotEmpty(references);
         Assert.DoesNotContain("Npgsql", references);
         Assert.DoesNotContain("StackExchange.Redis", references);
-    }
-
-    [Fact]
-    public void Chaos_does_no_io()
-    {
-        var chaos = Types.InAssembly(_kitchen).That().HaveNameStartingWith("Chaos", StringComparison.Ordinal);
-
-        Verify(chaos, chaos.ShouldNot().HaveDependencyOnAny("Npgsql", "StackExchange.Redis", "System.Net.Http"));
     }
 
     /// <summary>

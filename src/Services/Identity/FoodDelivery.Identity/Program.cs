@@ -63,6 +63,7 @@ app.UseExceptionHandler();
 app.UseRateLimiter();
 app.MapDefaultEndpoints();
 
+WellKnown.Map(app);
 RequestOtp.Map(app);
 VerifyOtp.Map(app);
 

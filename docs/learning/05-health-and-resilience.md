@@ -3,6 +3,8 @@
 > **Topic:** liveness vs readiness health checks, and the HTTP resilience pipeline (timeout, retry, circuit breaker) between services.
 > **Tag when approved:** `step-05-health-and-resilience`
 
+> **Since Step 12** the Sandbox (Kitchen and Waiter) is gone. Its links below lead to this step's tag, and to run its experiments check out `step-05-health-and-resilience`.
+
 ## Why this matters for this project
 Distributed systems fail **partially**: Postgres restarts, Catalog is slow for 2 seconds, a network blip drops one request. Step 31 has Order calling Catalog over HTTP to re-check prices at checkout. Without this step:
 - One blip becomes a failed checkout.
@@ -16,13 +18,13 @@ This step adds the two standard answers once, in ServiceDefaults: **health check
 |---|---|
 | [ServiceDefaults Extensions.cs](../../src/ServiceDefaults/FoodDelivery.ServiceDefaults/Extensions.cs) | `AddDefaultHealthChecks()` ("self", tagged `live`), `MapDefaultEndpoints()` (`/health` readiness, `/alive` liveness, Development only, JSON output), `AddStandardResilienceHandler()` on every HttpClient, health paths filtered out of traces |
 | [ServiceDefaults .csproj](../../src/ServiceDefaults/FoodDelivery.ServiceDefaults/FoodDelivery.ServiceDefaults.csproj) and [Directory.Packages.props](../../Directory.Packages.props) | + `Microsoft.Extensions.Http.Resilience` 10.11.1 (Polly v8 underneath) |
-| [KitchenHealthChecks.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenHealthChecks.cs) | Hand-written `PostgresHealthCheck` (`SELECT 1`) and `RedisHealthCheck` (`PING`) |
-| [Chaos.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/Chaos.cs) | Fault injector: failure rate, delay, and counters of attempts that actually arrived |
-| [Kitchen Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | Registers the checks (3 s timeout each); `POST/GET /chaos`; `/dish-of-the-day` now reads `now()` from Postgres (`cookedAt`) |
-| [Waiter Program.cs](../../src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs) | **Demo-sized** resilience options; `/order` returns 503 with `reason` = `retries-exhausted` / `timeout` / `circuit-open` |
+| [KitchenHealthChecks.cs](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/src/Sandbox/FoodDelivery.Sandbox.Kitchen/KitchenHealthChecks.cs) | Hand-written `PostgresHealthCheck` (`SELECT 1`) and `RedisHealthCheck` (`PING`) |
+| [Chaos.cs](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/src/Sandbox/FoodDelivery.Sandbox.Kitchen/Chaos.cs) | Fault injector: failure rate, delay, and counters of attempts that actually arrived |
+| [Kitchen Program.cs](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/src/Sandbox/FoodDelivery.Sandbox.Kitchen/Program.cs) | Registers the checks (3 s timeout each); `POST/GET /chaos`; `/dish-of-the-day` now reads `now()` from Postgres (`cookedAt`) |
+| [Waiter Program.cs](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/src/Sandbox/FoodDelivery.Sandbox.Waiter/Program.cs) | **Demo-sized** resilience options; `/order` returns 503 with `reason` = `retries-exhausted` / `timeout` / `circuit-open` |
 | [AppHost.cs](../../src/AppHost/FoodDelivery.AppHost/AppHost.cs) | `.WithHttpHealthCheck("/health")` on kitchen and waiter |
 | [.editorconfig](../../.editorconfig) | + constants are PascalCase (the private-field `_camelCase` rule was also catching `private const`) |
-| [tools/http/sandbox.http](../../tools/http/sandbox.http) | + health and chaos requests |
+| [tools/http/sandbox.http](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/tools/http/sandbox.http) | + health and chaos requests |
 
 > Behaviour change from Step 04: `/order?burn=true` used to return the Kitchen's 500. Now it's retried 3 times, and the Waiter answers **503** with `"reason":"retries-exhausted"`.
 
@@ -121,7 +123,7 @@ Experiment 5: one burnt order = **4 dishes cooked**. Two consequences:
 ---
 
 ## Break-it experiments
-All were run while building this step; the curl outputs are real. The dashboard observations (health state, retry spans, metric counts) are what you should see, but they weren't checked by script, so confirm them during review. Start the AppHost, then use [sandbox.http](../../tools/http/sandbox.http) or curl from Git Bash with `K=https://localhost:7148; W=https://localhost:7240`.
+All were run while building this step; the curl outputs are real. The dashboard observations (health state, retry spans, metric counts) are what you should see, but they weren't checked by script, so confirm them during review. Start the AppHost, then use [sandbox.http](https://github.com/pran890/FoodDelivery/blob/step-05-health-and-resilience/tools/http/sandbox.http) or curl from Git Bash with `K=https://localhost:7148; W=https://localhost:7240`.
 **Wait about 10 s between experiments** so the breaker's sampling window from the previous one has passed.
 
 ### 1. Transient failures are hidden by retries
