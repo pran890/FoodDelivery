@@ -21,7 +21,7 @@ public sealed class EmailTests(IdentityFixture fixture) : IdentityTest(fixture)
             .Build();
         await mailpit.StartAsync(Ct);
         await using var factory = Fixture.CreateFactory(
-            fakeSender: false, mailpit: $"Endpoint=smtp://{mailpit.Hostname}:{mailpit.GetMappedPublicPort(1025)}");
+            fakeSender: false, ("ConnectionStrings:mailpit", $"Endpoint=smtp://{mailpit.Hostname}:{mailpit.GetMappedPublicPort(1025)}"));
         using var client = factory.CreateClient();
 
         using var request = await RequestCodeAsync("asha@example.com", client);

@@ -130,7 +130,7 @@ public sealed class OtpTests(IdentityFixture fixture) : IdentityTest(fixture)
     [Fact]
     public async Task An_expired_code_is_rejected_and_leaves_nothing_behind()
     {
-        await using var shortLived = Fixture.CreateFactory(otpLifetime: "00:00:01");
+        await using var shortLived = Fixture.CreateFactory(("Otp:Lifetime", "00:00:01"));
         using var client = shortLived.CreateClient();
         var code = await GetCodeAsync(Email, client);
         await Task.Delay(TimeSpan.FromSeconds(1.5), Ct);
@@ -210,7 +210,7 @@ public sealed class OtpTests(IdentityFixture fixture) : IdentityTest(fixture)
     [Fact]
     public async Task Redis_down_is_503_for_sign_in_but_only_degraded_for_the_service()
     {
-        await using var factory = Fixture.CreateFactory(redis: "127.0.0.1:1,connectTimeout=500,asyncTimeout=1000");
+        await using var factory = Fixture.CreateFactory(("ConnectionStrings:redis", "127.0.0.1:1,connectTimeout=500,asyncTimeout=1000"));
         using var client = factory.CreateClient();
 
         using var request = await RequestCodeAsync(Email, client);

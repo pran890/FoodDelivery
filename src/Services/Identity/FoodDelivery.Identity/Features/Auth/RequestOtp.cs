@@ -1,5 +1,4 @@
 using FoodDelivery.Identity.Features.Users;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FoodDelivery.Identity.Features.Auth;
 
@@ -8,15 +7,23 @@ internal static partial class RequestOtp
 {
     internal sealed record Request(string? Email);
 
-    public static void Map(IEndpointRouteBuilder app) => app.MapPost("/auth/otp/request", HandleAsync);
+    public static void Map(IEndpointRouteBuilder app) => app.MapPost("/auth/otp/request", HandleAsync)
+        .RequireRateLimiting(IpRateLimiting.OtpRequestPolicy);
 
-    private static async Task<Results<Accepted, ValidationProblem>> HandleAsync(
-        Request request, OtpStore otps, IOtpSender sender, ILogger<OtpStore> logger, CancellationToken ct)
+    private static async Task<IResult> HandleAsync(
+        Request request, HttpContext http, OtpRateLimiter limiter, OtpStore otps, IOtpSender sender, ILogger<OtpStore> logger, CancellationToken ct)
     {
         // Depends only on the text of the email, so it says nothing about which accounts exist.
         if (!EmailAddress.TryNormalize(request.Email, out var email))
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["email"] = ["Not a valid email address."] });
+        }
+
+        // Known and unknown emails are counted alike, so a 429 says nothing about accounts either.
+        // Before issuing: a refused request must not replace the code the user is typing in right now.
+        if (await limiter.TryAcquireAsync(email) is { } wait)
+        {
+            return IpRateLimiting.TooManyRequests(http, wait);
         }
 
         // No database lookup: known and unknown emails take exactly the same path.

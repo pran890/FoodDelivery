@@ -33,8 +33,14 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(services =>
 });
 builder.Services.AddOptions<OtpOptions>().BindConfiguration(OtpOptions.Section).ValidateDataAnnotations().ValidateOnStart();
 builder.Services.AddSingleton<OtpStore>();
+builder.Services.AddOptions<OtpRateLimitOptions>().BindConfiguration(OtpRateLimitOptions.Section).ValidateDataAnnotations().ValidateOnStart();
+builder.Services.AddSingleton<OtpRateLimiter>();
 builder.Services.AddSingleton<IOtpSender, EmailOtpSender>();
 builder.Services.AddExceptionHandler<RedisExceptionHandler>();
+
+// Step 10: X-Forwarded-For is deliberately NOT read (no UseForwardedHeaders): any client can send it.
+// From Step 17 the gateway will be the only caller, and only its header will be trusted.
+builder.Services.AddIpRateLimiting();
 
 builder.Services.AddHealthChecks()
     .AddCheck<IdentityDbHealthCheck>("identitydb", timeout: TimeSpan.FromSeconds(3))
@@ -44,6 +50,7 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 app.UseExceptionHandler();
+app.UseRateLimiter();
 app.MapDefaultEndpoints();
 
 RequestOtp.Map(app);

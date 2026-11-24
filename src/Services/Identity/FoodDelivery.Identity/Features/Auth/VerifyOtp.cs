@@ -14,7 +14,8 @@ internal static class VerifyOtp
     // Step 11 adds the access token.
     internal sealed record Response(Guid Id, string Email, IReadOnlyList<string> Roles);
 
-    public static void Map(IEndpointRouteBuilder app) => app.MapPost("/auth/otp/verify", HandleAsync);
+    public static void Map(IEndpointRouteBuilder app) => app.MapPost("/auth/otp/verify", HandleAsync)
+        .RequireRateLimiting(IpRateLimiting.OtpVerifyPolicy);
 
     private static async Task<Results<Ok<Response>, ProblemHttpResult>> HandleAsync(
         Request request, OtpStore otps, IdentityDbContext db, TimeProvider time, CancellationToken ct)

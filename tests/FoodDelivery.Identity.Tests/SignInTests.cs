@@ -80,7 +80,7 @@ public sealed class SignInTests(IdentityFixture fixture) : IdentityTest(fixture)
     public async Task In_production_users_cannot_be_read_but_sign_in_works()
     {
         var user = await SignInAsync("asha@example.com");
-        await using var production = Fixture.CreateFactory("Production");
+        await using var production = Fixture.CreateFactory(("environment", "Production"));
         using var client = production.CreateClient();
 
         using var read = await client.GetAsync($"/users/{user.Id}", Ct);

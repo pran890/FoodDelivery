@@ -90,7 +90,7 @@ Without Redis nobody can sign in, so it's tempting to report Unhealthy. But from
 | Send inside the request | Simple | A queue (Step 51): faster answer, retries, survives a crash |
 | One generic error | No hints | Specific errors: friendlier, but leak information |
 
-## Known gap until Step 10
+## Known gap until Step 10 (closed there: [10-rate-limiting.md](10-rate-limiting.md))
 Nothing limits how often a code can be *requested*. Each new code brings 5 more guesses, and anyone can flood an inbox. Local use only until rate limiting exists.
 
 ---

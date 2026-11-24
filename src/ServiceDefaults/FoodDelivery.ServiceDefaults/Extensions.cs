@@ -70,7 +70,8 @@ public static class Extensions
         if (app.Environment.IsDevelopment())
         {
             // Readiness: ALL checks (self + dependencies). Unhealthy → "don't send me traffic".
-            app.MapHealthChecks(ReadinessPath, new HealthCheckOptions { ResponseWriter = WriteHealthJson });
+            app.MapHealthChecks(ReadinessPath, new HealthCheckOptions { ResponseWriter = WriteHealthJson })
+                .DisableRateLimiting(); // Step 10: a limited probe would look like a broken service
 
             // Liveness: only "live" checks. Unhealthy → "restart me". Never include dependencies
             // here: a database outage would restart every service, which fixes nothing.
@@ -78,7 +79,7 @@ public static class Extensions
             {
                 Predicate = registration => registration.Tags.Contains(LiveTag),
                 ResponseWriter = WriteHealthJson,
-            });
+            }).DisableRateLimiting();
         }
 
         return app;

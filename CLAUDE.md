@@ -78,8 +78,8 @@ Each service owns its own database. No service reads another service's database.
   - **Tables:** `Users`, `Roles`, `UserRoles`, `Sessions` (one per device login), `RefreshTokens`, `SigningKeys`.
   - **Email OTP:**
     - Kept in Redis as the hash `otp:{email}` (`mac`, `attempts`), holding an **HMAC-SHA256** of the email and the 6-digit code, with a 5-minute TTL, at most 5 attempts, single use, and constant-time comparison.
-    - Rate limited per email (Redis) and per IP.
-    - The response is always `202`, so it never reveals whether an email exists.
+    - Rate limited per email (Redis sorted set `rl:otp:{email}`: 60 s apart, 5 per hour, 20 per day) and per IP (in memory). `X-Forwarded-For` is not trusted until the gateway exists (Step 17).
+    - The response is `202`, or `429` over a limit; both are the same for known and unknown emails, so it never reveals whether an email exists.
     - Sent through `IOtpSender` (`EmailOtpSender` via MailKit to Mailpit; a `WhatsAppOtpSender` can be added later).
   - **Access token:** RS256 JWT, 15 minutes, `kid` in the header.
     - Claims: `iss`, `aud=fooddelivery-api`, `sub`, `email`, `role` (one per role), `sid`, `jti`, `iat`, `nbf`, `exp`. `restaurant_id` is added from step 26.

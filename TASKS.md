@@ -9,16 +9,16 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 10 — Rate limiting (🔄 In progress)
+## Current step: 11 — JWT issuing (🔄 In progress)
 - [x] Brief
-- [ ] 🗄️ Schema review: rate limit Redis keys (waiting for your approval)
+- [ ] 🗄️ Schema review: token claims contract (waiting for your approval)
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-10-rate-limiting`
+- [ ] Commit + tag `step-11-jwt-issuing`
 
 ## Open questions / waiting on
-- Nothing open.
+- Step 57: make sure `ASPNETCORE_FORWARDEDHEADERS_ENABLED` is not set for services reachable without the gateway (it removes the per-IP limit, see Step 10).
 
 ---
 
@@ -40,8 +40,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 |---|---|---|---|
 | 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | ✅ |
 | 09 | Email OTP (Redis keys) | 🗄️ | ✅ |
-| 10 | Rate limiting (Redis keys) | 🗄️ | 🔄 In progress |
-| 11 | JWT issuing (claims contract) | 🗄️ | ⬜ |
+| 10 | Rate limiting (Redis keys) | 🗄️ | ✅ |
+| 11 | JWT issuing (claims contract) | 🗄️ | 🔄 In progress |
 | 12 | JWT validation in another service | | ⬜ |
 | 13 | Sessions + refresh rotation | 🗄️ | ⬜ |
 | 14 | Cookies and CSRF | | ⬜ |
@@ -142,7 +142,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**9 / 59 done** · Current: Step 10 (in progress)
+**10 / 59 done** · Current: Step 11 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -156,3 +156,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 07 | CI | `step-07-ci` | 2026-11-24 |
 | 08 | Vertical slices + EF Core basics | `step-08-vertical-slices-and-ef-core` | 2026-11-24 |
 | 09 | Email OTP | `step-09-email-otp` | 2026-11-24 |
+| 10 | Rate limiting | `step-10-rate-limiting` | 2026-11-24 |

@@ -3,6 +3,9 @@ using System.Net;
 using System.Net.Http.Json;
 using FoodDelivery.Identity.Data;
 using FoodDelivery.Identity.Features.Auth;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -49,22 +52,39 @@ public sealed class IdentityFixture : IAsyncLifetime
     }
 
     /// <summary>Another Identity on the same database, with some settings changed.</summary>
-    public WebApplicationFactory<Program> CreateFactory(
-        string environment = "Development", string? redis = null, string otpLifetime = "00:05:00", bool fakeSender = true, string? mailpit = null) =>
+    public WebApplicationFactory<Program> CreateFactory(params (string Key, string? Value)[] settings) => CreateFactory(fakeSender: true, settings);
+
+    public WebApplicationFactory<Program> CreateFactory(bool fakeSender, params (string Key, string? Value)[] settings) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(host =>
         {
-            host.UseSetting("environment", environment);
-            host.UseSetting("ConnectionStrings:identitydb", ConnectionString);
-            host.UseSetting("ConnectionStrings:redis", redis ?? _redis.GetConnectionString());
-            host.UseSetting("ConnectionStrings:mailpit", mailpit);
-            host.UseSetting("Otp:HmacKey", "test-key-test-key-test-key-test-key-test-key");
-            host.UseSetting("Otp:From", "no-reply@example.com");
-            host.UseSetting("Otp:Lifetime", otpLifetime);
-
-            if (fakeSender)
+            (string Key, string? Value)[] defaults =
+            [
+                ("environment", "Development"),
+                ("ConnectionStrings:identitydb", ConnectionString),
+                ("ConnectionStrings:redis", _redis.GetConnectionString()),
+                ("Otp:HmacKey", "test-key-test-key-test-key-test-key-test-key"),
+                ("Otp:From", "no-reply@example.com"),
+                // No limits, unless a test is about them.
+                ("IpRateLimit:Global", "1000000"),
+                ("IpRateLimit:OtpRequest", "1000000"),
+                ("IpRateLimit:OtpVerify", "1000000"),
+                ("OtpRateLimit:Gap", "00:00:00"),
+                ("OtpRateLimit:PerHour", "1000"),
+                ("OtpRateLimit:PerDay", "1000"),
+            ];
+            foreach (var (key, value) in defaults.Concat(settings)) // later settings win
             {
-                host.ConfigureTestServices(services => services.Replace(ServiceDescriptor.Singleton<IOtpSender>(_sender)));
+                host.UseSetting(key, value);
             }
+
+            host.ConfigureTestServices(services =>
+            {
+                services.AddTransient<IStartupFilter, ClientAddressFilter>();
+                if (fakeSender)
+                {
+                    services.Replace(ServiceDescriptor.Singleton<IOtpSender>(_sender));
+                }
+            });
         });
 
     public HttpClient CreateClient() => Factory.CreateClient();
@@ -100,6 +120,20 @@ public sealed class IdentityFixture : IAsyncLifetime
 
         await _redis.DisposeAsync();
         await _postgres.DisposeAsync();
+    }
+
+    /// <summary>The in-memory server has no real connections, so a test header sets the client address.</summary>
+    private sealed class ClientAddressFilter : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+        {
+            app.Use((context, nextStep) =>
+            {
+                context.Connection.RemoteIpAddress = IPAddress.Parse(context.Request.Headers["Test-Client"].FirstOrDefault() ?? "192.0.2.1");
+                return nextStep(context);
+            });
+            next(app);
+        };
     }
 
     private sealed class FakeOtpSender : IOtpSender

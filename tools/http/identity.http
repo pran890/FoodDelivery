@@ -5,7 +5,8 @@
 @identity = https://localhost:7150
 @email = asha@example.com
 
-### Step 09: ask for a code. Always 202, whether the account exists or not
+### Step 09: ask for a code. 202 whether the account exists or not
+### Step 10: again within 60 s: 429 with Retry-After
 POST {{identity}}/auth/otp/request
 Content-Type: application/json
 
