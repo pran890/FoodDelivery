@@ -13,14 +13,15 @@ Content-Type: application/json
 { "email": "{{email}}" }
 
 ### Step 09: sign in with the code from Mailpit (creates the user the first time)
+### Step 11: the answer contains the access token
 # @name verify
 POST {{identity}}/auth/otp/verify
 Content-Type: application/json
 
 { "email": "{{email}}", "code": "000000" }
 
-### Read the user who just signed in (Development only until Step 11)
-GET {{identity}}/users/{{verify.response.body.id}}
+### Read the user who just signed in (Development only)
+GET {{identity}}/users/{{verify.response.body.user.id}}
 
 ### Not a valid email (400)
 POST {{identity}}/auth/otp/request

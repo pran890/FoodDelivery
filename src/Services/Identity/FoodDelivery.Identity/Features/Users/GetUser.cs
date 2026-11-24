@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Identity.Features.Users;
 
-// DEVELOPMENT ONLY: it returns an email address, and nothing protects it until tokens exist (Step 11).
+// DEVELOPMENT ONLY: it returns an email address, and no endpoint checks tokens or roles yet (Steps 12 and 15).
 internal static class GetUser
 {
     // Similar to VerifyOtp's response, but deliberately not shared: slices change

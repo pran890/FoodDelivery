@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# Private keys (Step 11). The repository is public.
+*.pem
+
 # User-specific files
 *.rsuser
 *.suo

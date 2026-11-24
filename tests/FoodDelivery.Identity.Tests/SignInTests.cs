@@ -11,7 +11,7 @@ public sealed class SignInTests(IdentityFixture fixture) : IdentityTest(fixture)
     [Fact]
     public async Task First_sign_in_creates_a_customer_that_can_be_read_back()
     {
-        var user = await SignInAsync("asha@example.com");
+        var user = (await SignInAsync("asha@example.com")).User;
         var read = await Client.GetFromJsonAsync<GetUser.Response>($"/users/{user.Id}", Ct);
 
         Assert.Equal("asha@example.com", user.Email);
@@ -23,14 +23,14 @@ public sealed class SignInTests(IdentityFixture fixture) : IdentityTest(fixture)
     [Fact]
     public async Task Signing_in_again_is_the_same_user_whatever_the_case()
     {
-        var first = await SignInAsync("asha@example.com");
+        var first = (await SignInAsync("asha@example.com")).User;
 
         await GetCodeAsync("asha@example.com");
         using var response = await VerifyAsync(" ASHA@Example.com ", $" {Fixture.CodeFor("asha@example.com")} ");
         var second = await response.Content.ReadFromJsonAsync<VerifyOtp.Response>(Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(first.Id, second?.Id);
+        Assert.Equal(first.Id, second?.User.Id);
     }
 
     // Step 08's race, forced the same way: a lock lets the "does this user exist?" read through but holds
@@ -58,7 +58,7 @@ public sealed class SignInTests(IdentityFixture fixture) : IdentityTest(fixture)
 
         using var response = await verify;
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(existing, (await response.Content.ReadFromJsonAsync<VerifyOtp.Response>(Ct))?.Id);
+        Assert.Equal(existing, (await response.Content.ReadFromJsonAsync<VerifyOtp.Response>(Ct))?.User.Id);
 
         async Task<object?> ScalarAsync(string sql)
         {
@@ -79,7 +79,7 @@ public sealed class SignInTests(IdentityFixture fixture) : IdentityTest(fixture)
     [Fact]
     public async Task In_production_users_cannot_be_read_but_sign_in_works()
     {
-        var user = await SignInAsync("asha@example.com");
+        var user = (await SignInAsync("asha@example.com")).User;
         await using var production = Fixture.CreateFactory(("environment", "Production"));
         using var client = production.CreateClient();
 

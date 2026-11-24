@@ -54,5 +54,8 @@
     <!-- Step 09: SMTP client for OTP emails (and "Testcontainers" for a Mailpit container in tests) -->
     <PackageVersion Include="MailKit" Version="5.0.0" />
     <PackageVersion Include="Testcontainers" Version="4.17.0" />
+
+    <!-- Step 11: creating and reading JWTs -->
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
   </ItemGroup>
 </Project>

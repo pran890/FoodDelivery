@@ -81,8 +81,8 @@ Each service owns its own database. No service reads another service's database.
     - Rate limited per email (Redis sorted set `rl:otp:{email}`: 60 s apart, 5 per hour, 20 per day) and per IP (in memory). `X-Forwarded-For` is not trusted until the gateway exists (Step 17).
     - The response is `202`, or `429` over a limit; both are the same for known and unknown emails, so it never reveals whether an email exists.
     - Sent through `IOtpSender` (`EmailOtpSender` via MailKit to Mailpit; a `WhatsAppOtpSender` can be added later).
-  - **Access token:** RS256 JWT, 15 minutes, `kid` in the header.
-    - Claims: `iss`, `aud=fooddelivery-api`, `sub`, `email`, `role` (one per role), `sid`, `jti`, `iat`, `nbf`, `exp`. `restaurant_id` is added from step 26.
+  - **Access token:** RS256 JWT, 15 minutes, `typ: at+jwt` and `kid` (RFC 7638 fingerprint) in the header. The development key is a file outside the repository (`%LOCALAPPDATA%\FoodDelivery`) until Step 16; production must configure one.
+    - Claims: `iss` (`https://identity.fooddelivery.local`), `aud=fooddelivery-api`, `sub`, `email`, `role` (always a list), `jti`, `iat`, `nbf`, `exp`. `sid` is added in step 13 and `restaurant_id` from step 26.
   - **Refresh token:** a random value stored only as a SHA-256 hash, lasting 30 days.
     - **Rotated on every use.** If a consumed token is used again, **the whole session is revoked**.
     - Sent as an **HttpOnly, Secure, SameSite=Strict cookie**, scoped to the Identity auth path, and refresh requires a CSRF header.

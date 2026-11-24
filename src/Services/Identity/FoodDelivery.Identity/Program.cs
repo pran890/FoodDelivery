@@ -1,5 +1,6 @@
 using FoodDelivery.Identity.Data;
 using FoodDelivery.Identity.Features.Auth;
+using FoodDelivery.Identity.Features.Tokens;
 using FoodDelivery.Identity.Features.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -42,6 +43,11 @@ builder.Services.AddExceptionHandler<RedisExceptionHandler>();
 // From Step 17 the gateway will be the only caller, and only its header will be trusted.
 builder.Services.AddIpRateLimiting();
 
+// Step 11: access tokens.
+builder.Services.AddOptions<JwtOptions>().BindConfiguration(JwtOptions.Section).ValidateDataAnnotations().ValidateOnStart();
+builder.Services.AddSingleton<SigningKey>();
+builder.Services.AddSingleton<TokenIssuer>();
+
 builder.Services.AddHealthChecks()
     .AddCheck<IdentityDbHealthCheck>("identitydb", timeout: TimeSpan.FromSeconds(3))
     // Degraded, not Unhealthy: without Redis nobody can sign in, but the rest of Identity (from
@@ -49,6 +55,10 @@ builder.Services.AddHealthChecks()
     .AddCheck<RedisHealthCheck>("redis", failureStatus: HealthStatus.Degraded, timeout: TimeSpan.FromSeconds(3));
 
 var app = builder.Build();
+
+// Load the signing key now: a missing key should stop the start, not the first sign-in.
+app.Services.GetRequiredService<SigningKey>();
+
 app.UseExceptionHandler();
 app.UseRateLimiter();
 app.MapDefaultEndpoints();

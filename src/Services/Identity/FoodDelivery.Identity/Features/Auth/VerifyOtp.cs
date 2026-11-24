@@ -1,4 +1,5 @@
 using FoodDelivery.Identity.Data;
+using FoodDelivery.Identity.Features.Tokens;
 using FoodDelivery.Identity.Features.Users;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +12,15 @@ internal static class VerifyOtp
 {
     internal sealed record Request(string? Email, string? Code);
 
-    // Step 11 adds the access token.
-    internal sealed record Response(Guid Id, string Email, IReadOnlyList<string> Roles);
+    internal sealed record Response(string AccessToken, string TokenType, int ExpiresIn, UserInfo User);
+
+    internal sealed record UserInfo(Guid Id, string Email, IReadOnlyList<string> Roles);
 
     public static void Map(IEndpointRouteBuilder app) => app.MapPost("/auth/otp/verify", HandleAsync)
         .RequireRateLimiting(IpRateLimiting.OtpVerifyPolicy);
 
     private static async Task<Results<Ok<Response>, ProblemHttpResult>> HandleAsync(
-        Request request, OtpStore otps, IdentityDbContext db, TimeProvider time, CancellationToken ct)
+        Request request, HttpContext http, OtpStore otps, IdentityDbContext db, TokenIssuer tokens, TimeProvider time, CancellationToken ct)
     {
         if (!EmailAddress.TryNormalize(request.Email, out var email)
             || request.Code is null
@@ -29,16 +31,23 @@ internal static class VerifyOtp
         }
 
         var user = await FindAsync(db, email, ct) ?? await CreateAsync(db, email, time, ct);
-        return TypedResults.Ok(user);
+
+        // The token must not stay behind in a browser or proxy cache.
+        http.Response.Headers.CacheControl = "no-store";
+        return TypedResults.Ok(new Response(
+            AccessToken: tokens.Issue(user.Id, user.Email, user.Roles),
+            TokenType: "Bearer",
+            ExpiresIn: (int)tokens.Lifetime.TotalSeconds,
+            User: user));
     }
 
-    private static Task<Response?> FindAsync(IdentityDbContext db, string email, CancellationToken ct) =>
+    private static Task<UserInfo?> FindAsync(IdentityDbContext db, string email, CancellationToken ct) =>
         db.Users
             .Where(u => u.Email == email)
-            .Select(u => new Response(u.Id, u.Email, u.Roles.OrderBy(r => r.RoleId).Select(r => r.Role!.Name).ToList()))
+            .Select(u => new UserInfo(u.Id, u.Email, u.Roles.OrderBy(r => r.RoleId).Select(r => r.Role!.Name).ToList()))
             .SingleOrDefaultAsync(ct);
 
-    private static async Task<Response> CreateAsync(IdentityDbContext db, string email, TimeProvider time, CancellationToken ct)
+    private static async Task<UserInfo> CreateAsync(IdentityDbContext db, string email, TimeProvider time, CancellationToken ct)
     {
         var user = User.Create(email, RoleId.Customer, time.GetUtcNow());
         db.Users.Add(user);
@@ -46,7 +55,7 @@ internal static class VerifyOtp
         try
         {
             await db.SaveChangesAsync(ct);
-            return new Response(user.Id, user.Email, [nameof(RoleId.Customer)]);
+            return new UserInfo(user.Id, user.Email, [nameof(RoleId.Customer)]);
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException
         {

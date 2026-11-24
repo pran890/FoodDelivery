@@ -43,6 +43,9 @@ public sealed class IdentityFixture : IAsyncLifetime
 
     public string ConnectionString => _postgres.GetConnectionString();
 
+    /// <summary>Never the developer's own key: a new file for every test run.</summary>
+    public string SigningKeyPath { get; } = Path.Combine(Path.GetTempPath(), $"identity-tests-{Guid.NewGuid():N}.pem");
+
     public async ValueTask InitializeAsync()
     {
         await Task.WhenAll(_postgres.StartAsync(), _redis.StartAsync());
@@ -64,6 +67,7 @@ public sealed class IdentityFixture : IAsyncLifetime
                 ("ConnectionStrings:redis", _redis.GetConnectionString()),
                 ("Otp:HmacKey", "test-key-test-key-test-key-test-key-test-key"),
                 ("Otp:From", "no-reply@example.com"),
+                ("Jwt:SigningKeyPath", SigningKeyPath),
                 // No limits, unless a test is about them.
                 ("IpRateLimit:Global", "1000000"),
                 ("IpRateLimit:OtpRequest", "1000000"),
@@ -118,6 +122,7 @@ public sealed class IdentityFixture : IAsyncLifetime
             await _redisAdmin.DisposeAsync();
         }
 
+        File.Delete(SigningKeyPath);
         await _redis.DisposeAsync();
         await _postgres.DisposeAsync();
     }
@@ -190,13 +195,13 @@ public abstract class IdentityTest(IdentityFixture fixture) : IAsyncLifetime
         return Fixture.CodeFor(email);
     }
 
-    internal async Task<VerifyOtp.Response> SignInAsync(string email)
+    internal async Task<VerifyOtp.Response> SignInAsync(string email, HttpClient? client = null)
     {
-        using var response = await VerifyAsync(email, await GetCodeAsync(email));
+        using var response = await VerifyAsync(email, await GetCodeAsync(email, client), client);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var user = await response.Content.ReadFromJsonAsync<VerifyOtp.Response>(Ct);
-        Assert.NotNull(user);
-        return user;
+        var signedIn = await response.Content.ReadFromJsonAsync<VerifyOtp.Response>(Ct);
+        Assert.NotNull(signedIn);
+        return signedIn;
     }
 
     public async ValueTask InitializeAsync() => await Fixture.ResetAsync();
