@@ -9,12 +9,12 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 06 — Testing foundation (🔄 In progress)
+## Current step: 07 — CI (🔄 In progress)
 - [x] Brief
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-06-testing-foundation`
+- [ ] Commit + tag `step-07-ci`
 
 ## Open questions / waiting on
 - Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
@@ -31,8 +31,8 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 03 | Infrastructure containers | | ✅ |
 | 04 | OpenTelemetry | | ✅ |
 | 05 | Health and resilience | | ✅ |
-| 06 | Testing foundation | | 🔄 In progress |
-| 07 | CI | | ⬜ |
+| 06 | Testing foundation | | ✅ |
+| 07 | CI | | 🔄 In progress |
 
 ### Stage B — Identity (custom authentication)
 | # | Step | Schema review | Status |
@@ -141,7 +141,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**5 / 59 done** · Current: Step 06 (in progress)
+**6 / 59 done** · Current: Step 07 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -151,3 +151,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 03 | Infrastructure containers | `step-03-infrastructure-containers` | 2026-11-23 |
 | 04 | OpenTelemetry | `step-04-opentelemetry` | 2026-11-23 |
 | 05 | Health and resilience | `step-05-health-and-resilience` | 2026-11-24 |
+| 06 | Testing foundation | `step-06-testing-foundation` | 2026-11-24 |

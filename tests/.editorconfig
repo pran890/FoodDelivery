@@ -1,0 +1,4 @@
+# Extra rules for test code only. The root .editorconfig still applies.
+[*.cs]
+# Underscores make test names readable: Burnt_dish_returns_500
+dotnet_diagnostic.CA1707.severity = none

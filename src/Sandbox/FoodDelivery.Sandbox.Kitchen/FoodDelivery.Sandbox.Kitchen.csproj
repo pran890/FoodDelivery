@@ -11,4 +11,9 @@
     <PackageReference Include="StackExchange.Redis" />
   </ItemGroup>
 
+  <!-- Step 06: the types here are internal; let the test project see them. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="FoodDelivery.Sandbox.Kitchen.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -13,4 +13,8 @@
   <Folder Name="/src/ServiceDefaults/">
     <Project Path="src/ServiceDefaults/FoodDelivery.ServiceDefaults/FoodDelivery.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FoodDelivery.ArchitectureTests/FoodDelivery.ArchitectureTests.csproj" />
+    <Project Path="tests/FoodDelivery.Sandbox.Kitchen.Tests/FoodDelivery.Sandbox.Kitchen.Tests.csproj" />
+  </Folder>
 </Solution>

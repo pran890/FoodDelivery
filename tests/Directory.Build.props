@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    MSBuild stops at the FIRST Directory.Build.props it finds walking up, so the root one must be
+    imported explicitly. Everything below then applies to test projects only.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <!-- xUnit v3: a test project is a normal executable that runs its own tests. -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>
