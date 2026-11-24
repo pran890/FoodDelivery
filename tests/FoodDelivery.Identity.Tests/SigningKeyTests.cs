@@ -33,6 +33,22 @@ public sealed class SigningKeyTests : IDisposable
         Array.ForEach(keys, k => k.Dispose());
     }
 
+    // The JWT library caches signing objects per key for the whole process. With that shared cache, an
+    // instance that shuts down takes the same key away from another one (found by CI in Step 11).
+    [Fact]
+    public void Disposing_one_instance_does_not_break_another_with_the_same_key()
+    {
+        static string Issue(SigningKey key) =>
+            new TokenIssuer(key, Options.Create(new JwtOptions()), TimeProvider.System).Issue(Guid.NewGuid(), "a@b.com", ["Customer"]);
+
+        var first = Load("Development", _path);
+        using var second = Load("Development", _path);
+        Issue(first);
+
+        first.Dispose();
+
+        Assert.NotEmpty(Issue(second));
+    }
     [Fact]
     public void Production_never_creates_a_key()
     {

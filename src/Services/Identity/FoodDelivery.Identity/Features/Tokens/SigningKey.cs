@@ -25,7 +25,12 @@ internal sealed class SigningKey : IDisposable
         // Sign something now: a file with only the public key would otherwise fail at the first sign-in.
         _rsa.SignData("test"u8, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
-        var key = new RsaSecurityKey(_rsa);
+        var key = new RsaSecurityKey(_rsa)
+        {
+            // Its own cache of signing objects. The default one is shared by the whole process and finds
+            // entries by key, so it could hand out an object whose RSA was disposed by someone else.
+            CryptoProviderFactory = new CryptoProviderFactory(),
+        };
         // The key id is a fingerprint of the PUBLIC key (RFC 7638): the same key always gets the same id.
         key.KeyId = Base64UrlEncoder.Encode(key.ComputeJwkThumbprint());
         Credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);

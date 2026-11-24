@@ -122,6 +122,14 @@ See the table above.
 ### 7. Do the tests catch real bugs?
 12 bugs in our code, one at a time, all caught: role as a string, wrong type, an extra claim, a 1-hour lifetime, a repeated `jti`, a cacheable response, RS512, a random `kid`, production creating a key, a short key, no test signature, and instances overwriting each other's key.
 
+### 8. The bug CI found after this step was pushed
+All tests passed locally, then CI failed with `ObjectDisposedException: RSAOpenSsl`.
+The JWT library caches signing objects in `CryptoProviderFactory.Default`: **one cache for the whole process, looked up by key**. The tests run several Identities in one process with the same key. When one shut down and disposed its RSA object, another got the dead object from the cache. Whether that happened depended on the **test order**.
+
+The fix: each `SigningKey` has its own `CryptoProviderFactory`. Remove that line → `Disposing_one_instance_does_not_break_another_with_the_same_key` fails every time.
+
+One Identity per process wouldn't have hit it today, but **key rotation (Step 16) loads and disposes keys in a running process** and would have. Afterwards the suite passed in five different random orders (`dotnet test ... --seed 22`). Worth doing whenever tests share something.
+
 ### Not verified
 The permissions of the key file on Linux (`600`): the code sets them, but no test checks it.
 
