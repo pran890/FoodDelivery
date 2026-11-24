@@ -2,7 +2,7 @@
 
   <!-- SANDBOX project for learning steps 02-05. TargetFramework etc. come from Directory.Build.props. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\FoodDelivery.ServiceDefaults\fooddelivery.servicedefaults.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\FoodDelivery.ServiceDefaults\FoodDelivery.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
