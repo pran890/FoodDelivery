@@ -1,4 +1,4 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+var builder = DistributedApplication.CreateBuilder(args);
 
 // ---------------------------------------------------------------------------
 // Infrastructure containers (Step 03)
@@ -21,21 +21,34 @@ var postgres = builder.AddPostgres("postgres")
     .WithArgs("-c", "shared_buffers=128MB", "-c", "max_connections=50");
 
 var sandboxDb = postgres.AddDatabase("sandboxdb");
+var identityDb = postgres.AddDatabase("identitydb");
+
+// Step 08 needs only Postgres and Identity. WithExplicitStart: listed in the dashboard but not
+// started until you press Start there, so it costs no RAM (Redis and Mailpit return in Step 09).
 
 var redis = builder.AddRedis("redis")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume("fooddelivery-redis-data")
-    .WithContainerRuntimeArgs("--memory=128m", "--memory-swap=128m");
+    .WithContainerRuntimeArgs("--memory=128m", "--memory-swap=128m")
+    .WithExplicitStart();
 
 // Fake SMTP server with a web inbox. Nothing sends mail until Step 09 (OTP).
 builder.AddMailPit("mailpit")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithContainerRuntimeArgs("--memory=64m", "--memory-swap=64m");
+    .WithContainerRuntimeArgs("--memory=64m", "--memory-swap=64m")
+    .WithExplicitStart();
 
 // ---------------------------------------------------------------------------
 // Services
 // ---------------------------------------------------------------------------
 
+// Step 08: the first real service.
+builder.AddProject<Projects.FoodDelivery_Identity>("identity")
+    .WithReference(identityDb)
+    .WaitFor(identityDb)
+    .WithHttpHealthCheck("/health");
+
+// SANDBOX (steps 02-05): start redis, then kitchen, then waiter by hand in the dashboard.
 // A "resource" is anything the AppHost manages: a .NET project, a container, an executable.
 // The string is the resource NAME. The dashboard shows it, and other services use it to
 // find this one ("https+http://kitchen").
@@ -48,7 +61,8 @@ var kitchen = builder.AddProject<Projects.FoodDelivery_Sandbox_Kitchen>("kitchen
     .WaitFor(redis)
     // Step 05: the dashboard polls the kitchen's readiness endpoint and shows Healthy/Unhealthy,
     // and anything that WaitFor(kitchen) now waits for HEALTHY, not just "process started".
-    .WithHttpHealthCheck("/health");
+    .WithHttpHealthCheck("/health")
+    .WithExplicitStart();
 
 builder.AddProject<Projects.FoodDelivery_Sandbox_Waiter>("waiter")
     // WithReference: inject kitchen's endpoints into waiter's configuration as
@@ -56,6 +70,7 @@ builder.AddProject<Projects.FoodDelivery_Sandbox_Waiter>("waiter")
     .WithReference(kitchen)
     // WaitFor: don't start waiter until kitchen is running (Step 05: and healthy).
     .WaitFor(kitchen)
-    .WithHttpHealthCheck("/health");
+    .WithHttpHealthCheck("/health")
+    .WithExplicitStart();
 
 builder.Build().Run();

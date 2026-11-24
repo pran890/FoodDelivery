@@ -1,0 +1,24 @@
+# Identity requests (Step 08). Start the AppHost first:
+#   dotnet run --project src/AppHost/FoodDelivery.AppHost
+# These endpoints have no login yet and exist in Development only.
+
+@identity = https://localhost:7150
+
+### Create a user (201). Send it again, or in capitals: 409
+# @name create
+POST {{identity}}/users
+Content-Type: application/json
+
+{ "email": "Asha@Example.com" }
+
+### Read the user created above
+GET {{identity}}/users/{{create.response.body.id}}
+
+### Not a valid email (400)
+POST {{identity}}/users
+Content-Type: application/json
+
+{ "email": "not-an-email" }
+
+### Readiness, including the database
+GET {{identity}}/health

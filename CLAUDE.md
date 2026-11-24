@@ -67,7 +67,8 @@ Each service owns its own database. No service reads another service's database.
 - **Local orchestration:** **.NET Aspire AppHost** is the primary way to run locally. Infrastructure runs in containers with memory caps, persistent lifetime and volumes; the .NET services run as processes. Docker Compose is only for deployment (step 57).
 - **Database:**
   - PostgreSQL 17 + PostGIS (`postgis/postgis` image) in one container, a separate database per service.
-  - EF Core + Npgsql, migrations per service.
+  - EF Core + Npgsql, migrations per service. Applied at startup in Development only.
+  - snake_case names (`EFCore.NamingConventions`), UUIDv7 keys created in the app, `timestamptz` in UTC from `TimeProvider`.
   - Optimistic concurrency with `xmin`.
 - **Cache / fast state:** Redis. Used for carts, OTP codes, rate-limit counters, rider latest location, Redis GEO for nearby riders, caches and the SignalR backplane.
 - **Messaging:** **Wolverine** (MIT). It covers the in-process mediator, the RabbitMQ transport, the Postgres transactional outbox and inbox, sagas, and **scheduled messages for timeouts**.

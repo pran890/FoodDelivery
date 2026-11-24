@@ -38,6 +38,8 @@ jobs:
             project: tests/FoodDelivery.ArchitectureTests
           - name: Kitchen
             project: tests/FoodDelivery.Sandbox.Kitchen.Tests
+          - name: Identity
+            project: tests/FoodDelivery.Identity.Tests
 
     steps:
       # Actions are pinned to a commit, not a tag: a tag can be moved to other code later.

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- For your own Identity:AdminEmail. The repository is public: never commit a real address. -->
+    <UserSecretsId>fooddelivery-identity</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ServiceDefaults\FoodDelivery.ServiceDefaults\FoodDelivery.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="EFCore.NamingConventions" />
+    <!-- Only used by the dotnet-ef tool to generate migrations; not part of the published app. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FoodDelivery.Identity.Tests" />
+  </ItemGroup>
+
+</Project>

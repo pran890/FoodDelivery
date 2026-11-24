@@ -8,12 +8,13 @@ namespace FoodDelivery.ArchitectureTests;
 public class TypeRuleTests
 {
     private static readonly Assembly _kitchen = Assembly.Load("FoodDelivery.Sandbox.Kitchen");
+    private static readonly Assembly _identity = Assembly.Load("FoodDelivery.Identity");
     private static readonly Assembly _serviceDefaults = Assembly.Load("FoodDelivery.ServiceDefaults");
 
     [Fact]
     public void Health_checks_are_sealed_and_named_consistently()
     {
-        var healthChecks = Types.InAssembly(_kitchen).That().ImplementInterface(typeof(IHealthCheck));
+        var healthChecks = Types.InAssemblies([_kitchen, _identity]).That().ImplementInterface(typeof(IHealthCheck));
 
         Verify(healthChecks, healthChecks.Should().BeSealed().And().HaveNameEndingWith("HealthCheck", StringComparison.Ordinal));
     }

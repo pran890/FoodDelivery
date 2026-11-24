@@ -139,7 +139,8 @@ public static class Extensions
                     !context.Request.Path.StartsWithSegments(ReadinessPath)
                     && !context.Request.Path.StartsWithSegments(LivenessPath))
                 .AddHttpClientInstrumentation()   // one client span per outgoing call (+ traceparent header)
-                .AddSource(serviceSourceName));
+                .AddSource(serviceSourceName)
+                .AddSource("Npgsql"));            // Step 08: one span per SQL command (only a name, no package)
 
         // The AppHost sets OTEL_EXPORTER_OTLP_ENDPOINT (plus headers and protocol) to point at the
         // Aspire dashboard. Without it (e.g. `dotnet run` outside the AppHost) nothing is exported.

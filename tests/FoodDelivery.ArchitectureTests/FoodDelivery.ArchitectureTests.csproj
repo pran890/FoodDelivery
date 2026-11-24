@@ -7,6 +7,7 @@
   <!-- Referenced only so their compiled assemblies end up next to the tests. -->
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceDefaults\FoodDelivery.ServiceDefaults\FoodDelivery.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\src\Services\Identity\FoodDelivery.Identity\FoodDelivery.Identity.csproj" />
     <ProjectReference Include="..\..\src\Sandbox\FoodDelivery.Sandbox.Kitchen\FoodDelivery.Sandbox.Kitchen.csproj" />
   </ItemGroup>
 

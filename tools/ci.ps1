@@ -29,7 +29,7 @@ if (-not $SkipContainers) {
         Write-Host 'Stop the AppHost first: it and the test containers do not fit in RAM together.' -ForegroundColor Red
         exit 1
     }
-    $projects += 'tests/FoodDelivery.Sandbox.Kitchen.Tests'
+    $projects += 'tests/FoodDelivery.Sandbox.Kitchen.Tests', 'tests/FoodDelivery.Identity.Tests'
 }
 
 Invoke-Step 'Restore' @('restore')

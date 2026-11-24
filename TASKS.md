@@ -9,13 +9,13 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 
 ---
 
-## Current step: 08 — Vertical slices + EF Core basics (🔄 In progress)
+## Current step: 09 — Email OTP (🔄 In progress)
 - [x] Brief
-- [ ] 🗄️ Schema review: Users, Roles, UserRoles (waiting for your approval)
+- [ ] 🗄️ Schema review: OTP Redis keys (waiting for your approval)
 - [ ] Build
 - [ ] Learning doc + verified experiments
 - [ ] **You:** review the doc and run the experiments
-- [ ] Commit + tag `step-08-vertical-slices-and-ef-core`
+- [ ] Commit + tag `step-09-email-otp`
 
 ## Open questions / waiting on
 - Redis `maxmemory` + `noeviction` below the container cap: Aspire's `AddRedis` has no simple hook. Decide when Redis first holds real data (Step 09).
@@ -38,14 +38,14 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ### Stage B — Identity (custom authentication)
 | # | Step | Schema review | Status |
 |---|---|---|---|
-| 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | 🔄 In progress |
-| 09 | Email OTP (Redis keys) | 🗄️ | ⬜ |
+| 08 | Vertical slices + EF Core basics (Users, Roles) | 🗄️ | ✅ |
+| 09 | Email OTP (Redis keys) | 🗄️ | 🔄 In progress |
 | 10 | Rate limiting (Redis keys) | 🗄️ | ⬜ |
 | 11 | JWT issuing (claims contract) | 🗄️ | ⬜ |
 | 12 | JWT validation in another service | | ⬜ |
 | 13 | Sessions + refresh rotation | 🗄️ | ⬜ |
 | 14 | Cookies and CSRF | | ⬜ |
-| 15 | Role and policy authorization | | ⬜ |
+| 15 | Role and policy authorization (blocking a user) | 🗄️ | ⬜ |
 | 16 | Signing key rotation | 🗄️ | ⬜ |
 
 ### Stage C — Gateway
@@ -142,7 +142,7 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 ---
 
 ## Progress
-**7 / 59 done** · Current: Step 08 (in progress)
+**8 / 59 done** · Current: Step 09 (in progress)
 
 ## Done log
 | # | Step | Tag | Date |
@@ -154,3 +154,4 @@ Full step details: [docs/roadmap.md](docs/roadmap.md). Workflow rules: [CLAUDE.m
 | 05 | Health and resilience | `step-05-health-and-resilience` | 2026-11-24 |
 | 06 | Testing foundation | `step-06-testing-foundation` | 2026-11-24 |
 | 07 | CI | `step-07-ci` | 2026-11-24 |
+| 08 | Vertical slices + EF Core basics | `step-08-vertical-slices-and-ef-core` | 2026-11-24 |
